@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ChevronDown, Menu, X } from "lucide-react";
@@ -184,9 +185,12 @@ export default function Home() {
               <Button
                 variant="outline"
                 className="font-medium px-6 py-2 rounded-full text-sm cursor-pointer"
+                asChild
               >
-                <LogIn className="w-4 h-4 mr-2" />
-                Entrar
+                <Link href="/login" className="cursor-pointer">
+                  <LogIn className="w-4 h-4 mr-2" />
+                  Entrar
+                </Link>
               </Button>
             </div>
 
@@ -253,9 +257,12 @@ export default function Home() {
                   <Button
                     variant="outline"
                     className="font-medium px-6 py-2 rounded-full text-sm cursor-pointer w-full"
+                    asChild
                   >
-                    <LogIn className="w-4 h-4 mr-2" />
-                    Entrar
+                    <Link href="/login" className="cursor-pointer">
+                      <LogIn className="w-4 h-4 mr-2" />
+                      Entrar
+                    </Link>
                   </Button>
                 </div>
               </div>

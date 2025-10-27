@@ -39,7 +39,7 @@ export default function RegisterPage() {
             {/* Parent/Guardian Option */}
             <Button
               variant="outline"
-              className="w-full h-16 bg-white hover:bg-yellow-400 hover:text-black text-gray-900 font-semibold border-2 border-gray-200 rounded-lg transition-colors cursor-pointer flex items-center justify-start px-6"
+              className="w-full h-16 bg-white hover:bg-[#FFDD00] hover:text-black text-gray-900 font-semibold border-2 border-gray-200 rounded-lg transition-colors cursor-pointer flex items-center justify-start px-6"
               asChild
             >
               <Link href="/register/parent">
@@ -51,7 +51,7 @@ export default function RegisterPage() {
             {/* School Option */}
             <Button
               variant="outline"
-              className="w-full h-16 bg-white hover:bg-yellow-400 hover:text-black text-gray-900 font-semibold border-2 border-gray-200 rounded-lg transition-colors cursor-pointer flex items-center justify-start px-6"
+              className="w-full h-16 bg-white hover:bg-[#FFDD00] hover:text-black text-gray-900 font-semibold border-2 border-gray-200 rounded-lg transition-colors cursor-pointer flex items-center justify-start px-6"
               asChild
             >
               <Link href="/register/school">
@@ -63,7 +63,7 @@ export default function RegisterPage() {
             {/* Driver Option */}
             <Button
               variant="outline"
-              className="w-full h-16 bg-white hover:bg-yellow-400 hover:text-black text-gray-900 font-semibold border-2 border-gray-200 rounded-lg transition-colors cursor-pointer flex items-center justify-start px-6"
+              className="w-full h-16 bg-white hover:bg-[#FFDD00] hover:text-black text-gray-900 font-semibold border-2 border-gray-200 rounded-lg transition-colors cursor-pointer flex items-center justify-start px-6"
               asChild
             >
               <Link href="/register/driver">

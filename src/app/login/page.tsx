@@ -47,7 +47,7 @@ export default function LoginPage() {
                   placeholder="seuemail@exemplo.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="pl-4 pr-12 py-3 text-base border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent"
+                  className="pl-4 pr-12 py-3 text-base border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FFDD00] focus:border-transparent"
                 />
                 <Mail className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
               </div>
@@ -64,7 +64,7 @@ export default function LoginPage() {
                   placeholder="Sua senha"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="pl-4 pr-12 py-3 text-base border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent"
+                  className="pl-4 pr-12 py-3 text-base border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FFDD00] focus:border-transparent"
                 />
                 <button
                   type="button"
@@ -93,7 +93,7 @@ export default function LoginPage() {
             {/* Login Button */}
             <Button
               type="submit"
-              className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-3 text-base rounded-lg transition-colors cursor-pointer"
+              className="w-full bg-mira-yellow hover:bg-mira-yellow-dark text-black font-semibold py-3 text-base rounded-lg transition-colors cursor-pointer"
             >
               Entrar
             </Button>

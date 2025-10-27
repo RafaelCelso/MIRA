@@ -47,6 +47,11 @@
   --radius: 0.625rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
+
+  /* MIRA Brand Colors */
+  --mira-yellow: #ffdd00;
+  --mira-yellow-dark: #e6c700;
+  --mira-yellow-light: #fff4b3;
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
@@ -178,4 +183,29 @@ html {
 .hover-lift:hover {
   transform: translateY(-5px);
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+/* MIRA Brand Utilities */
+.bg-mira-yellow {
+  background-color: var(--mira-yellow);
+}
+
+.bg-mira-yellow-dark {
+  background-color: var(--mira-yellow-dark);
+}
+
+.bg-mira-yellow-light {
+  background-color: var(--mira-yellow-light);
+}
+
+.text-mira-yellow {
+  color: var(--mira-yellow);
+}
+
+.border-mira-yellow {
+  border-color: var(--mira-yellow);
+}
+
+.ring-mira-yellow {
+  --tw-ring-color: var(--mira-yellow);
 }

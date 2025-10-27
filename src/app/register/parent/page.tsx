@@ -417,7 +417,7 @@ export default function ParentRegisterPage() {
                             onChange={(e) =>
                               handleSemNumeroChange(e.target.checked)
                             }
-                            className="mr-2 w-4 h-4 border-2 border-gray-300 rounded checked:bg-yellow-400 checked:border-black focus:ring-2 focus:ring-yellow-400 focus:ring-opacity-50"
+                            className="mr-2 w-4 h-4 border-2 border-gray-300 rounded checked:bg-[#FFDD00] checked:border-black focus:ring-2 focus:ring-[#FFDD00] focus:ring-opacity-50"
                           />
                           <span className="text-sm text-gray-700">
                             Sem número
@@ -654,7 +654,7 @@ export default function ParentRegisterPage() {
                 type="button"
                 variant="outline"
                 onClick={addAluno}
-                className="w-full h-12 border-2 border-dashed border-yellow-400 text-yellow-600 hover:bg-yellow-50 cursor-pointer flex items-center justify-center"
+                className="w-full h-12 border-2 border-dashed border-[#FFDD00] text-gray-600 hover:bg-[#FFDD00]/10 cursor-pointer flex items-center justify-center"
               >
                 <Plus className="w-5 h-5 mr-2" />
                 Adicionar outro filho
@@ -683,7 +683,7 @@ export default function ParentRegisterPage() {
               {/* Submit Button */}
               <Button
                 type="submit"
-                className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-3 text-base rounded-lg transition-colors cursor-pointer"
+                className="w-full bg-[#FFDD00] hover:bg-[#E6C700] text-black font-semibold py-3 text-base rounded-lg transition-colors cursor-pointer"
               >
                 Cadastrar
               </Button>

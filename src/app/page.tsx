@@ -56,7 +56,7 @@ function AnimatedWord() {
   }, []);
 
   return (
-    <span className="bg-yellow-400 text-black px-2 pt-2 pb-3 rounded-lg inline-block relative text-4xl md:text-5xl lg:text-6xl font-bold">
+    <span className="bg-[#FFDD00] text-black px-2 pt-2 pb-3 rounded-lg inline-block relative text-4xl md:text-5xl lg:text-6xl font-bold">
       <span
         className={`block transition-all duration-300 ease-in-out ${
           isAnimating
@@ -179,7 +179,7 @@ export default function Home() {
               >
                 Contato
               </a>
-              <Button className="bg-yellow-400 hover:bg-yellow-500 text-black font-medium px-6 py-2 rounded-full text-sm cursor-pointer">
+              <Button className="bg-[#FFDD00] hover:bg-[#E6C700] text-black font-medium px-6 py-2 rounded-full text-sm cursor-pointer">
                 Começar Agora
               </Button>
               <Button
@@ -251,7 +251,7 @@ export default function Home() {
                   Contato
                 </a>
                 <div className="flex flex-col space-y-2 pt-2">
-                  <Button className="bg-yellow-400 hover:bg-yellow-500 text-black font-medium px-6 py-2 rounded-full text-sm cursor-pointer w-full">
+                  <Button className="bg-[#FFDD00] hover:bg-[#E6C700] text-black font-medium px-6 py-2 rounded-full text-sm cursor-pointer w-full">
                     Começar Agora
                   </Button>
                   <Button
@@ -291,7 +291,7 @@ export default function Home() {
             <div className="flex flex-col sm:flex-row gap-4">
               <Button
                 size="lg"
-                className="bg-yellow-400 hover:bg-yellow-500 text-black font-medium px-8 py-3 rounded-full cursor-pointer"
+                className="bg-[#FFDD00] hover:bg-[#E6C700] text-black font-medium px-8 py-3 rounded-full cursor-pointer"
               >
                 Implementar na Escola →
               </Button>
@@ -358,7 +358,7 @@ export default function Home() {
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-slate-100 mb-4 leading-tight">
             Recursos que garantem{" "}
-            <span className="bg-yellow-400 text-black px-2 py-1 rounded-lg inline-block">
+            <span className="bg-[#FFDD00] text-black px-2 py-1 rounded-lg inline-block">
               segurança
             </span>
           </h2>
@@ -501,7 +501,7 @@ export default function Home() {
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-slate-100 mb-4 leading-tight">
             Como funciona o{" "}
-            <span className="bg-yellow-400 text-black px-2 py-1 rounded-lg inline-block">
+            <span className="bg-[#FFDD00] text-black px-2 py-1 rounded-lg inline-block">
               MIRA
             </span>
           </h2>
@@ -524,7 +524,7 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {/* Step 1 - Apresenta QR Code no Embarque */}
             <div className="text-center relative">
-              <div className="bg-yellow-400 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 relative">
+              <div className="bg-[#FFDD00] rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 relative">
                 <QrCode className="w-8 h-8 text-black" />
                 <div className="absolute -top-2 -right-2 bg-slate-900 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold">
                   01
@@ -540,7 +540,7 @@ export default function Home() {
 
             {/* Step 2 - Motorista Escaneia Embarque */}
             <div className="text-center relative">
-              <div className="bg-yellow-400 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 relative">
+              <div className="bg-[#FFDD00] rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 relative">
                 <ScanLine className="w-8 h-8 text-black" />
                 <div className="absolute -top-2 -right-2 bg-slate-900 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold">
                   02
@@ -556,7 +556,7 @@ export default function Home() {
 
             {/* Step 3 - Apresenta QR Code no Desembarque */}
             <div className="text-center relative">
-              <div className="bg-yellow-400 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 relative">
+              <div className="bg-[#FFDD00] rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 relative">
                 <QrCode className="w-8 h-8 text-black" />
                 <div className="absolute -top-2 -right-2 bg-slate-900 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold">
                   03
@@ -572,7 +572,7 @@ export default function Home() {
 
             {/* Step 4 - Motorista Escaneia Desembarque */}
             <div className="text-center relative">
-              <div className="bg-yellow-400 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 relative">
+              <div className="bg-[#FFDD00] rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 relative">
                 <CheckCircle className="w-8 h-8 text-black" />
                 <div className="absolute -top-2 -right-2 bg-slate-900 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold">
                   04
@@ -594,7 +594,7 @@ export default function Home() {
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-slate-100 mb-4 leading-tight">
             Por que as escolas escolhem o{" "}
-            <span className="bg-yellow-400 text-black px-2 py-1 rounded-lg inline-block">
+            <span className="bg-[#FFDD00] text-black px-2 py-1 rounded-lg inline-block">
               MIRA
             </span>
             ?
@@ -608,8 +608,8 @@ export default function Home() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
           <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
             <CardHeader>
-              <div className="w-12 h-12 bg-yellow-100 dark:bg-yellow-900 rounded-lg flex items-center justify-center mb-4">
-                <QrCode className="w-6 h-6 text-yellow-600" />
+              <div className="w-12 h-12 bg-[#FFDD00]/20 dark:bg-[#FFDD00]/10 rounded-lg flex items-center justify-center mb-4">
+                <QrCode className="w-6 h-6 text-[#FFDD00]" />
               </div>
               <CardTitle className="text-xl">Controle de Acesso</CardTitle>
             </CardHeader>
@@ -708,7 +708,7 @@ export default function Home() {
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-slate-100 mb-4 leading-tight">
             Benefícios para{" "}
-            <span className="bg-yellow-400 text-black px-2 py-1 rounded-lg inline-block">
+            <span className="bg-[#FFDD00] text-black px-2 py-1 rounded-lg inline-block">
               todos
             </span>
           </h2>
@@ -722,7 +722,7 @@ export default function Home() {
             {/* Para Pais */}
             <Card className="border-2 border-dashed border-gray-400 shadow-lg hover:shadow-xl transition-shadow duration-300">
               <CardHeader className="text-center">
-                <div className="bg-yellow-400 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                <div className="bg-[#FFDD00] rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
                   <Users className="w-8 h-8 text-black" />
                 </div>
                 <CardTitle className="text-xl">Para Pais</CardTitle>
@@ -740,7 +740,7 @@ export default function Home() {
             {/* Para Motoristas */}
             <Card className="border-2 border-dashed border-gray-400 shadow-lg hover:shadow-xl transition-shadow duration-300">
               <CardHeader className="text-center">
-                <div className="bg-yellow-400 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                <div className="bg-[#FFDD00] rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
                   <Bus className="w-8 h-8 text-black" />
                 </div>
                 <CardTitle className="text-xl">Para Motoristas</CardTitle>
@@ -758,7 +758,7 @@ export default function Home() {
             {/* Para Escolas */}
             <Card className="border-2 border-dashed border-gray-400 shadow-lg hover:shadow-xl transition-shadow duration-300">
               <CardHeader className="text-center">
-                <div className="bg-yellow-400 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                <div className="bg-[#FFDD00] rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
                   <GraduationCap className="w-8 h-8 text-black" />
                 </div>
                 <CardTitle className="text-xl">Para Escolas</CardTitle>
@@ -776,7 +776,7 @@ export default function Home() {
             {/* Para Todos */}
             <Card className="border-2 border-dashed border-gray-400 shadow-lg hover:shadow-xl transition-shadow duration-300">
               <CardHeader className="text-center">
-                <div className="bg-yellow-400 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                <div className="bg-[#FFDD00] rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
                   <Shield className="w-8 h-8 text-black" />
                 </div>
                 <CardTitle className="text-xl">Para Todos</CardTitle>
@@ -815,7 +815,7 @@ export default function Home() {
                   {[...Array(5)].map((_, i) => (
                     <Star
                       key={i}
-                      className="w-4 h-4 fill-yellow-400 text-yellow-400"
+                      className="w-4 h-4 fill-[#FFDD00] text-[#FFDD00]"
                     />
                   ))}
                 </div>
@@ -847,7 +847,7 @@ export default function Home() {
                   {[...Array(5)].map((_, i) => (
                     <Star
                       key={i}
-                      className="w-4 h-4 fill-yellow-400 text-yellow-400"
+                      className="w-4 h-4 fill-[#FFDD00] text-[#FFDD00]"
                     />
                   ))}
                 </div>
@@ -879,7 +879,7 @@ export default function Home() {
                   {[...Array(5)].map((_, i) => (
                     <Star
                       key={i}
-                      className="w-4 h-4 fill-yellow-400 text-yellow-400"
+                      className="w-4 h-4 fill-[#FFDD00] text-[#FFDD00]"
                     />
                   ))}
                 </div>
@@ -910,7 +910,7 @@ export default function Home() {
                   {[...Array(5)].map((_, i) => (
                     <Star
                       key={i}
-                      className="w-4 h-4 fill-yellow-400 text-yellow-400"
+                      className="w-4 h-4 fill-[#FFDD00] text-[#FFDD00]"
                     />
                   ))}
                 </div>
@@ -940,7 +940,7 @@ export default function Home() {
       {/* CTA Section */}
       <section className="container mx-auto px-4 py-20">
         <div className="max-w-4xl mx-auto text-center">
-          <div className="bg-gradient-to-r from-yellow-400 to-orange-400 rounded-3xl p-12 text-black">
+          <div className="bg-gradient-to-r from-[#FFDD00] to-orange-400 rounded-3xl p-12 text-black">
             <h2 className="text-4xl md:text-5xl font-bold mb-6">
               Pronto para revolucionar o transporte da sua escola?
             </h2>
@@ -978,7 +978,7 @@ export default function Home() {
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-slate-100 mb-4 leading-tight">
               Entre em{" "}
-              <span className="bg-yellow-400 text-black px-2 py-1 rounded-lg inline-block">
+              <span className="bg-[#FFDD00] text-black px-2 py-1 rounded-lg inline-block">
                 Contato
               </span>
             </h2>
@@ -1052,7 +1052,7 @@ export default function Home() {
                   <Input placeholder="Conte-nos mais sobre suas necessidades..." />
                 </div>
 
-                <Button className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-medium py-3 cursor-pointer">
+                <Button className="w-full bg-[#FFDD00] hover:bg-[#E6C700] text-black font-medium py-3 cursor-pointer">
                   Solicitar Demonstração
                 </Button>
               </CardContent>
@@ -1067,7 +1067,7 @@ export default function Home() {
                   </h3>
                   <div className="space-y-4">
                     <div className="flex items-center space-x-3">
-                      <MessageSquare className="w-5 h-5 text-yellow-600" />
+                      <MessageSquare className="w-5 h-5 text-[#FFDD00]" />
                       <div>
                         <p className="font-medium text-slate-900 dark:text-slate-100">
                           WhatsApp
@@ -1078,7 +1078,7 @@ export default function Home() {
                       </div>
                     </div>
                     <div className="flex items-center space-x-3">
-                      <MessageCircle className="w-5 h-5 text-yellow-600" />
+                      <MessageCircle className="w-5 h-5 text-[#FFDD00]" />
                       <div>
                         <p className="font-medium text-slate-900 dark:text-slate-100">
                           E-mail
@@ -1128,7 +1128,7 @@ export default function Home() {
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-slate-100 mb-4 leading-tight">
               Perguntas{" "}
-              <span className="bg-yellow-400 text-black px-2 py-1 rounded-lg inline-block">
+              <span className="bg-[#FFDD00] text-black px-2 py-1 rounded-lg inline-block">
                 Frequentes
               </span>
             </h2>

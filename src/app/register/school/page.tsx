@@ -365,7 +365,7 @@ export default function SchoolRegisterPage() {
               {/* Submit Button */}
               <Button
                 type="submit"
-                className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-3 text-base rounded-lg transition-colors cursor-pointer"
+                className="w-full bg-[#FFDD00] hover:bg-[#E6C700] text-black font-semibold py-3 text-base rounded-lg transition-colors cursor-pointer"
               >
                 Cadastrar Instituição
               </Button>

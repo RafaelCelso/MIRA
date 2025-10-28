@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import Link from "next/link";
 import {
   User,
   MapPin,
@@ -15,6 +16,9 @@ import {
   X,
   Send,
   Check,
+  Calendar,
+  Maximize2,
+  Minimize2,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 
@@ -26,6 +30,9 @@ export default function ParentDashboard() {
   const [customMessage, setCustomMessage] = useState("");
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const [sentMessage, setSentMessage] = useState("");
+  const [showAbsenceModal, setShowAbsenceModal] = useState(false);
+  const [showAbsenceConfirmation, setShowAbsenceConfirmation] = useState(false);
+  const [showFullscreenMap, setShowFullscreenMap] = useState(false);
 
   // Mensagens rápidas predefinidas
   const quickMessages = [
@@ -57,6 +64,124 @@ export default function ParentDashboard() {
       setShowConfirmationModal(true);
     }
   };
+
+  // Função para confirmar ausência
+  const confirmAbsence = () => {
+    // Aqui seria a integração com a API para registrar a ausência
+    console.log("Registrando ausência do aluno");
+    setShowAbsenceModal(false);
+    setShowAbsenceConfirmation(true);
+  };
+
+  // Componente de Mapa Reutilizável
+  const MapComponent = ({ isFullscreen = false }) => (
+    <div className="w-full h-full relative bg-gradient-to-br from-green-50 to-blue-50">
+      {/* Ruas principais */}
+      <div className="absolute inset-0">
+        {/* Rua horizontal principal */}
+        <div className="absolute top-1/3 left-0 right-0 h-3 bg-gray-300 border-t border-b border-gray-400"></div>
+        <div className="absolute top-1/3 left-0 right-0 h-1 bg-yellow-200 mt-1"></div>
+
+        {/* Rua vertical principal */}
+        <div className="absolute left-2/3 top-0 bottom-0 w-3 bg-gray-300 border-l border-r border-gray-400"></div>
+        <div className="absolute left-2/3 top-0 bottom-0 w-1 bg-yellow-200 ml-1"></div>
+
+        {/* Rua horizontal secundária */}
+        <div className="absolute top-2/3 left-0 right-0 h-2 bg-gray-400"></div>
+
+        {/* Rua vertical secundária */}
+        <div className="absolute left-1/3 top-0 bottom-0 w-2 bg-gray-400"></div>
+      </div>
+
+      {/* Pontos de referência */}
+      {/* Escola */}
+      <div className="absolute top-4 right-4 bg-blue-500 rounded-lg p-2 shadow-md border-2 border-white">
+        <div className="w-4 h-4 bg-white rounded flex items-center justify-center">
+          <span className="text-xs font-bold text-blue-500">E</span>
+        </div>
+      </div>
+
+      {/* Casa */}
+      <div className="absolute bottom-4 left-4 bg-green-500 rounded-lg p-2 shadow-md border-2 border-white">
+        <div className="w-4 h-4 bg-white rounded flex items-center justify-center">
+          <span className="text-xs font-bold text-green-500">C</span>
+        </div>
+      </div>
+
+      {/* Parque */}
+      <div className="absolute top-4 left-1/4 bg-green-300 rounded-full w-8 h-8 border-2 border-green-600 flex items-center justify-center">
+        <div className="w-2 h-2 bg-green-600 rounded-full"></div>
+      </div>
+
+      {/* Shopping */}
+      <div className="absolute bottom-1/4 right-1/4 bg-purple-400 rounded-lg p-1 shadow-md border border-white">
+        <div className="w-3 h-3 bg-white rounded"></div>
+      </div>
+
+      {/* Rota do ônibus (linha tracejada) */}
+      <svg className="absolute inset-0 w-full h-full pointer-events-none">
+        <path
+          d="M 20 240 Q 100 200 180 160 Q 220 140 260 120"
+          stroke="#FFDD00"
+          strokeWidth="3"
+          strokeDasharray="8,4"
+          fill="none"
+          opacity="0.8"
+        />
+      </svg>
+
+      {/* Ônibus em movimento */}
+      <div
+        className="absolute animate-pulse"
+        style={{ top: "45%", left: "55%" }}
+      >
+        <div className="w-10 h-10 bg-[#FFDD00] rounded-full flex items-center justify-center shadow-lg border-2 border-black transform -rotate-12">
+          <Bus className="w-6 h-6 text-black" />
+        </div>
+        {/* Sombra do ônibus */}
+        <div className="absolute -bottom-1 left-1 w-8 h-2 bg-black/20 rounded-full blur-sm"></div>
+      </div>
+
+      {/* Informações do mapa */}
+      <div className="absolute top-2 left-2 bg-white/90 backdrop-blur-sm rounded-lg p-2 shadow-md border border-gray-200">
+        <div className="flex items-center space-x-2 text-xs">
+          <div className="w-2 h-2 bg-[#FFDD00] rounded-full"></div>
+          <span className="font-medium text-gray-700">Ônibus Escolar</span>
+        </div>
+        <div className="flex items-center space-x-2 text-xs mt-1">
+          <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+          <span className="text-gray-600">Escola</span>
+        </div>
+        <div className="flex items-center space-x-2 text-xs mt-1">
+          <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+          <span className="text-gray-600">Casa</span>
+        </div>
+      </div>
+
+      {/* Status de velocidade - apenas no mapa compacto */}
+      {!isFullscreen && (
+        <div className="absolute bottom-2 left-2 bg-white/90 backdrop-blur-sm rounded-lg p-2 shadow-md border border-gray-200">
+          <div className="text-xs text-gray-600">Velocidade</div>
+          <div className="text-sm font-bold text-gray-900">35 km/h</div>
+        </div>
+      )}
+
+      {/* Tempo estimado - apenas no mapa compacto */}
+      {!isFullscreen && (
+        <div className="absolute top-2 right-2 bg-[#FFDD00]/90 backdrop-blur-sm rounded-lg p-2 shadow-md border border-black">
+          <div className="text-xs text-black font-medium">Chegada em</div>
+          <div className="text-sm font-bold text-black">8 min</div>
+        </div>
+      )}
+
+      {/* Botão Expandir/Minimizar */}
+      {!isFullscreen && (
+        <div className="absolute bottom-2 right-2 bg-white/90 backdrop-blur-sm rounded-lg p-2 shadow-md border border-gray-200 hover:bg-white transition-colors duration-200">
+          <Maximize2 className="w-4 h-4 text-gray-700" />
+        </div>
+      )}
+    </div>
+  );
 
   useEffect(() => {
     const updateTime = () => {
@@ -324,111 +449,11 @@ export default function ParentDashboard() {
           </h2>
           <Card className="bg-white shadow-sm border-2 border-black">
             <CardContent className="p-0">
-              <div className="h-80 bg-gray-200 rounded-lg overflow-hidden relative">
-                {/* Mapa simulado com ruas e pontos de referência */}
-                <div className="w-full h-full relative bg-gradient-to-br from-green-50 to-blue-50">
-                  {/* Ruas principais */}
-                  <div className="absolute inset-0">
-                    {/* Rua horizontal principal */}
-                    <div className="absolute top-1/3 left-0 right-0 h-3 bg-gray-300 border-t border-b border-gray-400"></div>
-                    <div className="absolute top-1/3 left-0 right-0 h-1 bg-yellow-200 mt-1"></div>
-
-                    {/* Rua vertical principal */}
-                    <div className="absolute left-2/3 top-0 bottom-0 w-3 bg-gray-300 border-l border-r border-gray-400"></div>
-                    <div className="absolute left-2/3 top-0 bottom-0 w-1 bg-yellow-200 ml-1"></div>
-
-                    {/* Rua horizontal secundária */}
-                    <div className="absolute top-2/3 left-0 right-0 h-2 bg-gray-400"></div>
-
-                    {/* Rua vertical secundária */}
-                    <div className="absolute left-1/3 top-0 bottom-0 w-2 bg-gray-400"></div>
-                  </div>
-
-                  {/* Pontos de referência */}
-                  {/* Escola */}
-                  <div className="absolute top-4 right-4 bg-blue-500 rounded-lg p-2 shadow-md border-2 border-white">
-                    <div className="w-4 h-4 bg-white rounded flex items-center justify-center">
-                      <span className="text-xs font-bold text-blue-500">E</span>
-                    </div>
-                  </div>
-
-                  {/* Casa */}
-                  <div className="absolute bottom-4 left-4 bg-green-500 rounded-lg p-2 shadow-md border-2 border-white">
-                    <div className="w-4 h-4 bg-white rounded flex items-center justify-center">
-                      <span className="text-xs font-bold text-green-500">
-                        C
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Parque */}
-                  <div className="absolute top-4 left-1/4 bg-green-300 rounded-full w-8 h-8 border-2 border-green-600 flex items-center justify-center">
-                    <div className="w-2 h-2 bg-green-600 rounded-full"></div>
-                  </div>
-
-                  {/* Shopping */}
-                  <div className="absolute bottom-1/4 right-1/4 bg-purple-400 rounded-lg p-1 shadow-md border border-white">
-                    <div className="w-3 h-3 bg-white rounded"></div>
-                  </div>
-
-                  {/* Rota do ônibus (linha tracejada) */}
-                  <svg className="absolute inset-0 w-full h-full pointer-events-none">
-                    <path
-                      d="M 20 240 Q 100 200 180 160 Q 220 140 260 120"
-                      stroke="#FFDD00"
-                      strokeWidth="3"
-                      strokeDasharray="8,4"
-                      fill="none"
-                      opacity="0.8"
-                    />
-                  </svg>
-
-                  {/* Ônibus em movimento */}
-                  <div
-                    className="absolute animate-pulse"
-                    style={{ top: "45%", left: "55%" }}
-                  >
-                    <div className="w-10 h-10 bg-[#FFDD00] rounded-full flex items-center justify-center shadow-lg border-2 border-black transform -rotate-12">
-                      <Bus className="w-6 h-6 text-black" />
-                    </div>
-                    {/* Sombra do ônibus */}
-                    <div className="absolute -bottom-1 left-1 w-8 h-2 bg-black/20 rounded-full blur-sm"></div>
-                  </div>
-
-                  {/* Informações do mapa */}
-                  <div className="absolute top-2 left-2 bg-white/90 backdrop-blur-sm rounded-lg p-2 shadow-md border border-gray-200">
-                    <div className="flex items-center space-x-2 text-xs">
-                      <div className="w-2 h-2 bg-[#FFDD00] rounded-full"></div>
-                      <span className="font-medium text-gray-700">
-                        Ônibus Escolar
-                      </span>
-                    </div>
-                    <div className="flex items-center space-x-2 text-xs mt-1">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                      <span className="text-gray-600">Escola</span>
-                    </div>
-                    <div className="flex items-center space-x-2 text-xs mt-1">
-                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                      <span className="text-gray-600">Casa</span>
-                    </div>
-                  </div>
-
-                  {/* Status de velocidade */}
-                  <div className="absolute bottom-2 right-2 bg-white/90 backdrop-blur-sm rounded-lg p-2 shadow-md border border-gray-200">
-                    <div className="text-xs text-gray-600">Velocidade</div>
-                    <div className="text-sm font-bold text-gray-900">
-                      35 km/h
-                    </div>
-                  </div>
-
-                  {/* Tempo estimado */}
-                  <div className="absolute top-2 right-2 bg-[#FFDD00]/90 backdrop-blur-sm rounded-lg p-2 shadow-md border border-black">
-                    <div className="text-xs text-black font-medium">
-                      Chegada em
-                    </div>
-                    <div className="text-sm font-bold text-black">8 min</div>
-                  </div>
-                </div>
+              <div
+                className="h-80 bg-gray-200 rounded-lg overflow-hidden relative cursor-pointer hover:bg-gray-300 transition-colors duration-200"
+                onClick={() => setShowFullscreenMap(true)}
+              >
+                <MapComponent />
               </div>
             </CardContent>
           </Card>
@@ -447,7 +472,10 @@ export default function ParentDashboard() {
             </Button>
 
             {/* Confirmar Ausência */}
-            <Button className="flex items-center justify-center space-x-2 bg-red-500 hover:bg-red-600 text-white font-semibold py-3 px-3 rounded-lg border-2 border-black shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 min-h-[50px]">
+            <Button
+              onClick={() => setShowAbsenceModal(true)}
+              className="flex items-center justify-center space-x-2 bg-red-500 hover:bg-red-600 text-white font-semibold py-3 px-3 rounded-lg border-2 border-black shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 min-h-[50px]"
+            >
               <UserX className="w-4 h-4" />
               <span className="text-xs font-medium">Ausência</span>
             </Button>
@@ -564,28 +592,32 @@ export default function ParentDashboard() {
         <div className="flex justify-around items-center">
           <Button
             variant="ghost"
-            className="flex flex-col items-center space-y-1 p-2"
+            className="flex flex-col items-center space-y-0.5 p-2"
           >
             <MapPin className="w-5 h-5 text-yellow-500" />
             <span className="text-xs text-yellow-500 font-medium">Início</span>
           </Button>
+          <Link href="/chat">
+            <Button
+              variant="ghost"
+              className="flex flex-col items-center space-y-0.5 p-2"
+            >
+              <MessageCircle className="w-5 h-5 text-gray-400" />
+              <span className="text-xs text-gray-400">Chat</span>
+            </Button>
+          </Link>
+          <Link href="/transport/parent">
+            <Button
+              variant="ghost"
+              className="flex flex-col items-center space-y-0.5 p-2 cursor-pointer"
+            >
+              <Bus className="w-5 h-5 text-gray-400" />
+              <span className="text-xs text-gray-400">Transporte</span>
+            </Button>
+          </Link>
           <Button
             variant="ghost"
-            className="flex flex-col items-center space-y-1 p-2"
-          >
-            <Bell className="w-5 h-5 text-gray-400" />
-            <span className="text-xs text-gray-400">Notificações</span>
-          </Button>
-          <Button
-            variant="ghost"
-            className="flex flex-col items-center space-y-1 p-2"
-          >
-            <Bus className="w-5 h-5 text-gray-400" />
-            <span className="text-xs text-gray-400">Transporte</span>
-          </Button>
-          <Button
-            variant="ghost"
-            className="flex flex-col items-center space-y-1 p-2"
+            className="flex flex-col items-center space-y-0.5 p-2"
           >
             <User className="w-5 h-5 text-gray-400" />
             <span className="text-xs text-gray-400">Perfil</span>
@@ -598,8 +630,14 @@ export default function ParentDashboard() {
 
       {/* Modal de Mensagens Rápidas */}
       {showMessageModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[80vh] overflow-hidden">
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          onClick={() => setShowMessageModal(false)}
+        >
+          <div
+            className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[80vh] overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
             {/* Header do Modal */}
             <div className="bg-[#FFDD00] px-6 py-4 flex items-center justify-between">
               <h3 className="text-lg font-bold text-black">
@@ -687,8 +725,17 @@ export default function ParentDashboard() {
 
       {/* Modal de Confirmação de Mensagem Enviada */}
       {showConfirmationModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm">
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          onClick={() => {
+            setShowConfirmationModal(false);
+            setSentMessage("");
+          }}
+        >
+          <div
+            className="bg-white rounded-2xl shadow-2xl w-full max-w-sm"
+            onClick={(e) => e.stopPropagation()}
+          >
             {/* Conteúdo do Modal de Confirmação */}
             <div className="p-6 text-center">
               {/* Ícone de Sucesso */}
@@ -728,6 +775,203 @@ export default function ParentDashboard() {
               >
                 OK
               </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Confirmação de Ausência */}
+      {showAbsenceModal && (
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          onClick={() => setShowAbsenceModal(false)}
+        >
+          <div
+            className="bg-white rounded-2xl shadow-2xl w-full max-w-md"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header do Modal */}
+            <div className="bg-red-500 px-6 py-4 flex items-center justify-between rounded-t-2xl">
+              <h3 className="text-lg font-bold text-white">
+                Confirmar Ausência
+              </h3>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowAbsenceModal(false)}
+                className="p-1 hover:bg-white/10 rounded-full"
+              >
+                <X className="w-5 h-5 text-white" />
+              </Button>
+            </div>
+
+            {/* Conteúdo do Modal */}
+            <div className="p-6">
+              {/* Ícone de Alerta */}
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <AlertTriangle className="w-8 h-8 text-red-600" />
+              </div>
+
+              {/* Informações do aluno */}
+              <div className="text-center mb-6">
+                <h4 className="text-lg font-bold text-gray-900 mb-2">
+                  Registrar Ausência
+                </h4>
+                <p className="text-sm text-gray-600 mb-4">
+                  Você está prestes a registrar a ausência de:
+                </p>
+
+                <div className="bg-gray-50 rounded-lg p-4 mb-4">
+                  <p className="font-semibold text-gray-900">
+                    {selectedStudent === "joao" ? "João Silva" : "Maria Silva"}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    {selectedStudent === "joao"
+                      ? "8º ano - Turma A"
+                      : "5º ano - Turma B"}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    {selectedStudent === "joao"
+                      ? "Colégio São José"
+                      : "Escola Municipal Santos"}
+                  </p>
+                </div>
+
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-6">
+                  <div className="flex items-start space-x-2">
+                    <Calendar className="w-4 h-4 text-yellow-600 mt-0.5" />
+                    <div className="text-left">
+                      <p className="text-sm font-medium text-yellow-800">
+                        Data: Hoje ({new Date().toLocaleDateString("pt-BR")})
+                      </p>
+                      <p className="text-xs text-yellow-700">
+                        O motorista será notificado automaticamente
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Botões de Ação */}
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowAbsenceModal(false)}
+                  className="flex-1 py-3 border-gray-300 text-gray-700 hover:bg-gray-50"
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  onClick={confirmAbsence}
+                  className="flex-1 py-3 bg-red-500 hover:bg-red-600 text-white"
+                >
+                  Confirmar Ausência
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Confirmação de Ausência Registrada */}
+      {showAbsenceConfirmation && (
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          onClick={() => setShowAbsenceConfirmation(false)}
+        >
+          <div
+            className="bg-white rounded-2xl shadow-2xl w-full max-w-sm"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Conteúdo do Modal de Confirmação */}
+            <div className="p-6 text-center">
+              {/* Ícone de Sucesso */}
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Check className="w-8 h-8 text-green-600" />
+              </div>
+
+              {/* Título */}
+              <h3 className="text-lg font-bold text-gray-900 mb-2">
+                Ausência Registrada!
+              </h3>
+
+              {/* Informações da ausência */}
+              <div className="bg-gray-50 rounded-lg p-3 mb-4">
+                <p className="text-sm text-gray-600 mb-1">Aluno:</p>
+                <p className="text-sm font-medium text-gray-900">
+                  {selectedStudent === "joao" ? "João Silva" : "Maria Silva"}
+                </p>
+              </div>
+
+              {/* Confirmação */}
+              <div className="bg-green-50 rounded-lg p-3 mb-6">
+                <p className="text-xs text-green-700 mb-1">
+                  ✓ Motorista notificado
+                </p>
+                <p className="text-xs text-green-700 mb-1">
+                  ✓ Escola informada
+                </p>
+                <p className="text-xs text-green-700">
+                  ✓ Ausência registrada para hoje
+                </p>
+              </div>
+
+              {/* Botão OK */}
+              <Button
+                onClick={() => {
+                  setShowAbsenceConfirmation(false);
+                }}
+                className="w-full bg-[#FFDD00] hover:bg-[#E6C700] text-black font-semibold py-3 rounded-lg transition-all duration-200"
+              >
+                OK
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Mapa em Tela Cheia */}
+      {showFullscreenMap && (
+        <div
+          className="fixed inset-0 bg-black z-50 flex flex-col"
+          onClick={() => setShowFullscreenMap(false)}
+        >
+          {/* Header do Mapa */}
+          <div className="bg-[#FFDD00] px-4 py-3 flex items-center justify-between">
+            <h3 className="text-lg font-bold text-black">
+              Localização em Tempo Real
+            </h3>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowFullscreenMap(false)}
+              className="p-2 hover:bg-black/10 rounded-full"
+            >
+              <X className="w-6 h-6 text-black" />
+            </Button>
+          </div>
+
+          {/* Mapa em Tela Cheia */}
+          <div className="flex-1 relative" onClick={(e) => e.stopPropagation()}>
+            <MapComponent isFullscreen={true} />
+          </div>
+
+          {/* Footer com Informações */}
+          <div className="bg-black/80 backdrop-blur-sm px-4 py-3 text-white">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 bg-[#FFDD00] rounded-full"></div>
+                  <span className="text-sm">Ônibus em movimento</span>
+                </div>
+                <div className="text-sm">
+                  Velocidade: <span className="font-bold">35 km/h</span>
+                </div>
+              </div>
+              <div className="text-sm">
+                Chegada em:{" "}
+                <span className="font-bold text-[#FFDD00]">8 min</span>
+              </div>
             </div>
           </div>
         </div>

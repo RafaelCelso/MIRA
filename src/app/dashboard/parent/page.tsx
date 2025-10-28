@@ -12,6 +12,9 @@ import {
   Bell,
   MessageCircle,
   UserX,
+  X,
+  Send,
+  Check,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 
@@ -19,6 +22,41 @@ export default function ParentDashboard() {
   const [currentTime, setCurrentTime] = useState("");
   const [isScrolled, setIsScrolled] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState("joao");
+  const [showMessageModal, setShowMessageModal] = useState(false);
+  const [customMessage, setCustomMessage] = useState("");
+  const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+  const [sentMessage, setSentMessage] = useState("");
+
+  // Mensagens rápidas predefinidas
+  const quickMessages = [
+    "Já estou indo",
+    "Estou descendo",
+    "Só um minuto, por favor",
+    "Pode aguardar um pouco?",
+    "Estou chegando",
+    "Obrigado pela paciência",
+  ];
+
+  // Função para enviar mensagem rápida
+  const sendQuickMessage = (message: string) => {
+    // Aqui seria a integração com a API para enviar a mensagem
+    console.log("Enviando mensagem:", message);
+    setSentMessage(message);
+    setShowMessageModal(false);
+    setShowConfirmationModal(true);
+  };
+
+  // Função para enviar mensagem personalizada
+  const sendCustomMessage = () => {
+    if (customMessage.trim()) {
+      // Aqui seria a integração com a API para enviar a mensagem
+      console.log("Enviando mensagem personalizada:", customMessage);
+      setSentMessage(customMessage);
+      setCustomMessage("");
+      setShowMessageModal(false);
+      setShowConfirmationModal(true);
+    }
+  };
 
   useEffect(() => {
     const updateTime = () => {
@@ -400,7 +438,10 @@ export default function ParentDashboard() {
         <section>
           <div className="grid grid-cols-2 gap-3">
             {/* Mensagem para Motorista */}
-            <Button className="flex items-center justify-center space-x-2 bg-[#FFDD00] hover:bg-[#E6C700] text-black font-semibold py-3 px-3 rounded-lg border-2 border-black shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 min-h-[50px]">
+            <Button
+              onClick={() => setShowMessageModal(true)}
+              className="flex items-center justify-center space-x-2 bg-[#FFDD00] hover:bg-[#E6C700] text-black font-semibold py-3 px-3 rounded-lg border-2 border-black shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 min-h-[50px]"
+            >
               <MessageCircle className="w-4 h-4" />
               <span className="text-xs font-medium">Mensagem</span>
             </Button>
@@ -554,6 +595,143 @@ export default function ParentDashboard() {
 
       {/* Padding bottom para compensar a navegação fixa */}
       <div className="h-20"></div>
+
+      {/* Modal de Mensagens Rápidas */}
+      {showMessageModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[80vh] overflow-hidden">
+            {/* Header do Modal */}
+            <div className="bg-[#FFDD00] px-6 py-4 flex items-center justify-between">
+              <h3 className="text-lg font-bold text-black">
+                Mensagem para o Motorista
+              </h3>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowMessageModal(false)}
+                className="p-1 hover:bg-black/10 rounded-full"
+              >
+                <X className="w-5 h-5 text-black" />
+              </Button>
+            </div>
+
+            {/* Conteúdo do Modal */}
+            <div className="p-6 space-y-6 max-h-[60vh] overflow-y-auto">
+              {/* Informações do Motorista */}
+              <div className="bg-gray-50 rounded-lg p-3">
+                <p className="text-sm text-gray-600 mb-1">Enviando para:</p>
+                <p className="font-semibold text-gray-900">Carlos Santos</p>
+                <p className="text-xs text-gray-500">Veículo ABC-1234</p>
+              </div>
+
+              {/* Mensagens Rápidas */}
+              <div>
+                <h4 className="text-sm font-semibold text-gray-900 mb-3">
+                  Mensagens Rápidas
+                </h4>
+                <div className="grid grid-cols-1 gap-2">
+                  {quickMessages.map((message, index) => (
+                    <Button
+                      key={index}
+                      variant="outline"
+                      onClick={() => sendQuickMessage(message)}
+                      className="justify-start text-left p-3 h-auto border-gray-200 hover:bg-[#FFDD00]/10 hover:border-[#FFDD00] transition-all duration-200"
+                    >
+                      <MessageCircle className="w-4 h-4 mr-2 text-gray-500" />
+                      <span className="text-sm text-gray-700">{message}</span>
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Mensagem Personalizada */}
+              <div>
+                <h4 className="text-sm font-semibold text-gray-900 mb-3">
+                  Mensagem Personalizada
+                </h4>
+                <div className="space-y-3">
+                  <textarea
+                    value={customMessage}
+                    onChange={(e) => setCustomMessage(e.target.value)}
+                    placeholder="Digite sua mensagem personalizada..."
+                    className="w-full p-3 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-[#FFDD00] focus:border-transparent"
+                    rows={3}
+                    maxLength={200}
+                  />
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-gray-500">
+                      {customMessage.length}/200 caracteres
+                    </span>
+                    <Button
+                      onClick={sendCustomMessage}
+                      disabled={!customMessage.trim()}
+                      className="bg-[#FFDD00] hover:bg-[#E6C700] text-black font-semibold px-4 py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+                    >
+                      <Send className="w-4 h-4" />
+                      <span>Enviar</span>
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer do Modal */}
+            <div className="bg-gray-50 px-6 py-4 border-t border-gray-200">
+              <p className="text-xs text-gray-500 text-center">
+                As mensagens são enviadas através do chat interno do MIRA
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Confirmação de Mensagem Enviada */}
+      {showConfirmationModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm">
+            {/* Conteúdo do Modal de Confirmação */}
+            <div className="p-6 text-center">
+              {/* Ícone de Sucesso */}
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Check className="w-8 h-8 text-green-600" />
+              </div>
+
+              {/* Título */}
+              <h3 className="text-lg font-bold text-gray-900 mb-2">
+                Mensagem Enviada!
+              </h3>
+
+              {/* Mensagem enviada */}
+              <div className="bg-gray-50 rounded-lg p-3 mb-4">
+                <p className="text-sm text-gray-600 mb-1">Mensagem enviada:</p>
+                <p className="text-sm font-medium text-gray-900 italic">
+                  "{sentMessage}"
+                </p>
+              </div>
+
+              {/* Informações do destinatário */}
+              <div className="bg-[#FFDD00]/10 rounded-lg p-3 mb-6">
+                <p className="text-xs text-gray-600 mb-1">Enviado para:</p>
+                <p className="text-sm font-semibold text-gray-900">
+                  Carlos Santos
+                </p>
+                <p className="text-xs text-gray-500">via Chat MIRA</p>
+              </div>
+
+              {/* Botão OK */}
+              <Button
+                onClick={() => {
+                  setShowConfirmationModal(false);
+                  setSentMessage("");
+                }}
+                className="w-full bg-[#FFDD00] hover:bg-[#E6C700] text-black font-semibold py-3 rounded-lg transition-all duration-200"
+              >
+                OK
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

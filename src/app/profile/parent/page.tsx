@@ -23,6 +23,7 @@ import {
   Check,
   Eye,
   EyeOff,
+  Users,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 
@@ -35,12 +36,44 @@ export default function ParentProfile() {
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [showPasswordFields, setShowPasswordFields] = useState(false);
 
+  // Dados dos alunos cadastrados
+  const students = [
+    {
+      id: 1,
+      name: "João Silva",
+      grade: "8º ano - Turma A",
+      school: "Colégio São José",
+      avatarColor: "from-blue-400 to-blue-600",
+    },
+    {
+      id: 2,
+      name: "Maria Silva",
+      grade: "5º ano - Turma B",
+      school: "Escola Municipal Santos",
+      avatarColor: "from-green-400 to-green-600",
+    },
+  ];
+
   // Estados para edição de perfil
   const [profileData, setProfileData] = useState({
     name: "Ana Paula Silva",
+    responsibility: "mae",
+    gender: "feminino",
+    cpf: "123.456.789-00",
     email: "ana.paula@email.com",
     phone: "(11) 99999-9999",
+    cep: "01234-567",
+    street: "Rua das Flores",
+    number: "123",
+    noNumber: false,
+    complement: "",
+    neighborhood: "Centro",
+    city: "São Paulo",
+    state: "SP",
     address: "Rua das Flores, 123 - Centro",
+    emergencyContactName: "João Silva",
+    emergencyContactPhone: "(11) 88888-8888",
+    emergencyContactRelation: "pai",
     emergencyContact: "João Silva - (11) 88888-8888",
   });
 
@@ -76,6 +109,112 @@ export default function ParentProfile() {
     // Aqui seria a integração com a API para salvar os dados
     console.log("Salvando perfil:", profileData);
     setShowEditModal(false);
+  };
+
+  // Função para máscara de CEP
+  const formatCEP = (value: string) => {
+    const numbers = value.replace(/\D/g, "");
+    if (numbers.length <= 8) {
+      return numbers.replace(/(\d{5})(\d)/, "$1-$2");
+    }
+    return value;
+  };
+
+  // Função para máscara de CPF
+  const formatCPF = (value: string) => {
+    const numbers = value.replace(/\D/g, "");
+    if (numbers.length <= 11) {
+      return numbers
+        .replace(/(\d{3})(\d)/, "$1.$2")
+        .replace(/(\d{3})(\d)/, "$1.$2")
+        .replace(/(\d{3})(\d{1,2})/, "$1-$2");
+    }
+    return value;
+  };
+
+  // Função para máscara de telefone
+  const formatPhone = (value: string) => {
+    const numbers = value.replace(/\D/g, "");
+    if (numbers.length <= 11) {
+      return numbers
+        .replace(/(\d{2})(\d)/, "($1) $2")
+        .replace(/(\d{5})(\d)/, "$1-$2");
+    }
+    return value;
+  };
+
+  // Função para permitir apenas letras, espaços e acentos
+  const formatName = (value: string) => {
+    return value.replace(/[^a-zA-ZÀ-ÿ\s]/g, "");
+  };
+
+  // Handlers com máscaras
+  const handleNameChange = (value: string) => {
+    const formatted = formatName(value);
+    setProfileData({ ...profileData, name: formatted });
+  };
+
+  const handleCPFChange = (value: string) => {
+    const formatted = formatCPF(value);
+    setProfileData({ ...profileData, cpf: formatted });
+  };
+
+  const handlePhoneChange = (value: string) => {
+    const formatted = formatPhone(value);
+    setProfileData({ ...profileData, phone: formatted });
+  };
+
+  // Handler para CEP com máscara
+  const handleCEPChangeProfile = (value: string) => {
+    const formatted = formatCEP(value);
+    setProfileData({ ...profileData, cep: formatted });
+  };
+
+  // Handlers para contato de emergência
+  const handleEmergencyNameChange = (value: string) => {
+    const formatted = formatName(value);
+    setProfileData({ ...profileData, emergencyContactName: formatted });
+  };
+
+  const handleEmergencyPhoneChange = (value: string) => {
+    const formatted = formatPhone(value);
+    setProfileData({ ...profileData, emergencyContactPhone: formatted });
+  };
+
+  // Função para buscar endereço pelo CEP
+  const buscarCEP = async () => {
+    const cep = profileData.cep.replace(/\D/g, "");
+
+    if (cep.length !== 8) {
+      alert("CEP deve ter 8 dígitos");
+      return;
+    }
+
+    try {
+      const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+      const data = await response.json();
+
+      if (data.erro) {
+        alert("CEP não encontrado");
+        return;
+      }
+
+      // Preenche os campos automaticamente
+      setProfileData((prev) => ({
+        ...prev,
+        street: data.logradouro || "",
+        neighborhood: data.bairro || "",
+        city: data.localidade || "",
+        state: data.uf || "",
+        // Atualiza também o campo address para compatibilidade
+        address: `${data.logradouro || ""}, ${prev.number} - ${
+          data.bairro || ""
+        }`,
+      }));
+    } catch (error) {
+      console.error("Erro ao buscar CEP:", error);
+      alert("Erro ao buscar CEP. Tente novamente.");
+    }
   };
 
   const handleSavePassword = () => {
@@ -160,38 +299,53 @@ export default function ParentProfile() {
               <Camera className="w-4 h-4" />
             </Button>
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-1">
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">
             Ana Paula Silva
           </h2>
-          <p className="text-gray-600 text-sm mb-2">
-            Mãe de João e Maria Silva
-          </p>
-          <p className="text-gray-500 text-xs">Membro desde Janeiro 2024</p>
+          <span className="px-3 py-1 bg-[#FFDD00] text-black text-sm font-bold rounded-full border border-black">
+            Responsável
+          </span>
         </div>
 
-        {/* Quick Stats */}
-        <div className="grid grid-cols-3 gap-3 mb-6">
-          <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200">
-            <CardContent className="p-3 text-center">
-              <div className="text-2xl font-bold text-blue-600 mb-1">2</div>
-              <div className="text-xs text-blue-700">Filhos</div>
-            </CardContent>
-          </Card>
-          <Card className="bg-gradient-to-br from-green-50 to-green-100 border border-green-200">
-            <CardContent className="p-3 text-center">
-              <div className="text-2xl font-bold text-green-600 mb-1">98%</div>
-              <div className="text-xs text-green-700">Presença</div>
-            </CardContent>
-          </Card>
-          <Card className="bg-gradient-to-br from-yellow-50 to-yellow-100 border border-yellow-200">
-            <CardContent className="p-3 text-center">
-              <div className="text-2xl font-bold text-yellow-600 mb-1">45</div>
-              <div className="text-xs text-yellow-700">Mensagens</div>
-            </CardContent>
-          </Card>
+        {/* Student Cards */}
+        <div className="mb-8">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4 text-center">
+            Alunos Cadastrados
+          </h3>
+          <div className="flex gap-4 overflow-x-auto pb-4 pt-2 pl-2 relative">
+            {students.map((student, index) => (
+              <Card
+                key={student.id}
+                className="min-w-[240px] shadow-lg border-2 hover:shadow-xl transition-all duration-300 cursor-pointer relative bg-gradient-to-br from-[#FFDD00] to-[#E6C700] border-black hover:scale-105 z-0"
+              >
+                <CardContent className="p-3">
+                  <div className="flex items-center gap-3">
+                    <div
+                      className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-sm shadow-md flex-shrink-0 bg-gradient-to-br ${student.avatarColor} text-white`}
+                    >
+                      {student.name
+                        .split(" ")
+                        .map((n) => n[0])
+                        .join("")}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-base font-bold truncate text-black">
+                        {student.name}
+                      </h3>
+                      <p className="text-sm truncate text-black">
+                        {student.grade}
+                      </p>
+                      <p className="text-xs truncate text-black">
+                        {student.school}
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </div>
 
-        {/* Personal Information */}
         <section>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-bold text-gray-900">
@@ -201,7 +355,7 @@ export default function ParentProfile() {
               onClick={() => setShowEditModal(true)}
               variant="outline"
               size="sm"
-              className="border-[#FFDD00] text-black hover:bg-[#FFDD00]/10"
+              className="border-gray-300 text-gray-700 hover:bg-gray-50"
             >
               <Edit className="w-4 h-4 mr-2" />
               Editar
@@ -219,6 +373,46 @@ export default function ParentProfile() {
                   <p className="font-medium text-gray-900">
                     {profileData.name}
                   </p>
+                </div>
+              </div>
+
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                  <Users className="w-5 h-5 text-blue-600" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm text-gray-500">Responsabilidade</p>
+                  <p className="font-medium text-gray-900">
+                    {profileData.responsibility === "pai"
+                      ? "Pai"
+                      : profileData.responsibility === "mae"
+                      ? "Mãe"
+                      : "Responsável"}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                  <User className="w-5 h-5 text-purple-600" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm text-gray-500">Sexo</p>
+                  <p className="font-medium text-gray-900">
+                    {profileData.gender === "masculino"
+                      ? "Masculino"
+                      : "Feminino"}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                  <Shield className="w-5 h-5 text-green-600" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm text-gray-500">CPF</p>
+                  <p className="font-medium text-gray-900">{profileData.cpf}</p>
                 </div>
               </div>
 
@@ -265,7 +459,25 @@ export default function ParentProfile() {
                 <div className="flex-1">
                   <p className="text-sm text-gray-500">Contato de Emergência</p>
                   <p className="font-medium text-gray-900">
-                    {profileData.emergencyContact}
+                    {profileData.emergencyContactName} -{" "}
+                    {profileData.emergencyContactPhone}
+                  </p>
+                  <p className="text-xs text-gray-500 capitalize">
+                    {profileData.emergencyContactRelation === "pai"
+                      ? "Pai"
+                      : profileData.emergencyContactRelation === "mae"
+                      ? "Mãe"
+                      : profileData.emergencyContactRelation === "avo"
+                      ? "Avô/Avó"
+                      : profileData.emergencyContactRelation === "tio"
+                      ? "Tio/Tia"
+                      : profileData.emergencyContactRelation === "irmao"
+                      ? "Irmão/Irmã"
+                      : profileData.emergencyContactRelation === "responsavel"
+                      ? "Responsável Legal"
+                      : profileData.emergencyContactRelation === "outro"
+                      ? "Outro"
+                      : ""}
                   </p>
                 </div>
               </div>
@@ -460,10 +672,95 @@ export default function ParentProfile() {
                 <input
                   type="text"
                   value={profileData.name}
+                  onChange={(e) => handleNameChange(e.target.value)}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FFDD00] focus:border-transparent"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Responsabilidade
+                </label>
+                <div className="flex gap-4">
+                  <label className="flex items-center cursor-pointer">
+                    <input
+                      type="radio"
+                      name="responsibility"
+                      value="pai"
+                      checked={profileData.responsibility === "pai"}
+                      onChange={(e) =>
+                        setProfileData({
+                          ...profileData,
+                          responsibility: e.target.value,
+                        })
+                      }
+                      className="mr-2 text-yellow-400 focus:ring-yellow-400"
+                    />
+                    <span className="text-sm text-gray-700">Pai</span>
+                  </label>
+                  <label className="flex items-center cursor-pointer">
+                    <input
+                      type="radio"
+                      name="responsibility"
+                      value="mae"
+                      checked={profileData.responsibility === "mae"}
+                      onChange={(e) =>
+                        setProfileData({
+                          ...profileData,
+                          responsibility: e.target.value,
+                        })
+                      }
+                      className="mr-2 text-yellow-400 focus:ring-yellow-400"
+                    />
+                    <span className="text-sm text-gray-700">Mãe</span>
+                  </label>
+                  <label className="flex items-center cursor-pointer">
+                    <input
+                      type="radio"
+                      name="responsibility"
+                      value="responsavel"
+                      checked={profileData.responsibility === "responsavel"}
+                      onChange={(e) =>
+                        setProfileData({
+                          ...profileData,
+                          responsibility: e.target.value,
+                        })
+                      }
+                      className="mr-2 text-yellow-400 focus:ring-yellow-400"
+                    />
+                    <span className="text-sm text-gray-700">Responsável</span>
+                  </label>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Sexo
+                </label>
+                <select
+                  value={profileData.gender}
                   onChange={(e) =>
-                    setProfileData({ ...profileData, name: e.target.value })
+                    setProfileData({ ...profileData, gender: e.target.value })
                   }
                   className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FFDD00] focus:border-transparent"
+                >
+                  <option value="">Selecione</option>
+                  <option value="masculino">Masculino</option>
+                  <option value="feminino">Feminino</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  CPF
+                </label>
+                <input
+                  type="text"
+                  value={profileData.cpf}
+                  onChange={(e) => handleCPFChange(e.target.value)}
+                  maxLength={14}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FFDD00] focus:border-transparent"
+                  placeholder="000.000.000-00"
                 />
               </div>
 
@@ -488,42 +785,243 @@ export default function ParentProfile() {
                 <input
                   type="tel"
                   value={profileData.phone}
-                  onChange={(e) =>
-                    setProfileData({ ...profileData, phone: e.target.value })
-                  }
+                  onChange={(e) => handlePhoneChange(e.target.value)}
+                  maxLength={15}
+                  placeholder="(00) 00000-0000"
                   className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FFDD00] focus:border-transparent"
                 />
               </div>
 
+              {/* Seção de Endereço */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <h4 className="text-md font-semibold text-gray-800 mb-3">
                   Endereço
-                </label>
-                <input
-                  type="text"
-                  value={profileData.address}
-                  onChange={(e) =>
-                    setProfileData({ ...profileData, address: e.target.value })
-                  }
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FFDD00] focus:border-transparent"
-                />
-              </div>
+                </h4>
 
+                <div className="space-y-3">
+                  <div className="flex gap-3">
+                    <div className="flex-1">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        CEP*
+                      </label>
+                      <input
+                        type="text"
+                        value={profileData.cep}
+                        onChange={(e) => handleCEPChangeProfile(e.target.value)}
+                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FFDD00] focus:border-transparent"
+                        placeholder="00000-000"
+                        maxLength={9}
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={buscarCEP}
+                      className="mt-6 px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 text-gray-700 font-medium transition-colors cursor-pointer"
+                    >
+                      Buscar
+                    </button>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Rua*
+                    </label>
+                    <input
+                      type="text"
+                      value={profileData.street}
+                      onChange={(e) =>
+                        setProfileData({
+                          ...profileData,
+                          street: e.target.value,
+                        })
+                      }
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FFDD00] focus:border-transparent"
+                      placeholder="Nome da sua rua"
+                    />
+                  </div>
+
+                  <div className="flex gap-3">
+                    <div className="flex-1">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Número*
+                      </label>
+                      <input
+                        type="text"
+                        value={profileData.number}
+                        onChange={(e) =>
+                          setProfileData({
+                            ...profileData,
+                            number: e.target.value,
+                          })
+                        }
+                        disabled={profileData.noNumber}
+                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FFDD00] focus:border-transparent disabled:bg-gray-100"
+                        placeholder="123"
+                      />
+                      <div className="mt-2">
+                        <label className="flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={profileData.noNumber}
+                            onChange={(e) =>
+                              setProfileData({
+                                ...profileData,
+                                noNumber: e.target.checked,
+                                number: e.target.checked ? "S/N" : "",
+                              })
+                            }
+                            className="mr-2 w-4 h-4 border-2 border-gray-300 rounded checked:bg-[#FFDD00] checked:border-black focus:ring-2 focus:ring-[#FFDD00] focus:ring-opacity-50"
+                          />
+                          <span className="text-sm text-gray-700">
+                            Sem número
+                          </span>
+                        </label>
+                      </div>
+                    </div>
+                    <div className="flex-1">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Complemento
+                      </label>
+                      <input
+                        type="text"
+                        value={profileData.complement}
+                        onChange={(e) =>
+                          setProfileData({
+                            ...profileData,
+                            complement: e.target.value,
+                          })
+                        }
+                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FFDD00] focus:border-transparent"
+                        placeholder="Apto, Bloco"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Bairro*
+                    </label>
+                    <input
+                      type="text"
+                      value={profileData.neighborhood}
+                      onChange={(e) =>
+                        setProfileData({
+                          ...profileData,
+                          neighborhood: e.target.value,
+                        })
+                      }
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FFDD00] focus:border-transparent"
+                      placeholder="Nome do bairro"
+                    />
+                  </div>
+
+                  <div className="flex gap-3">
+                    <div className="flex-1">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Cidade*
+                      </label>
+                      <input
+                        type="text"
+                        value={profileData.city}
+                        onChange={(e) =>
+                          setProfileData({
+                            ...profileData,
+                            city: e.target.value,
+                          })
+                        }
+                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FFDD00] focus:border-transparent"
+                        placeholder="Sua cidade"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Estado*
+                      </label>
+                      <select
+                        value={profileData.state}
+                        onChange={(e) =>
+                          setProfileData({
+                            ...profileData,
+                            state: e.target.value,
+                          })
+                        }
+                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FFDD00] focus:border-transparent"
+                      >
+                        <option value="">UF</option>
+                        <option value="SP">SP</option>
+                        <option value="RJ">RJ</option>
+                        <option value="MG">MG</option>
+                        <option value="RS">RS</option>
+                        <option value="PR">PR</option>
+                        <option value="SC">SC</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {/* Seção de Contato de Emergência */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <h4 className="text-md font-semibold text-gray-800 mb-3">
                   Contato de Emergência
-                </label>
-                <input
-                  type="text"
-                  value={profileData.emergencyContact}
-                  onChange={(e) =>
-                    setProfileData({
-                      ...profileData,
-                      emergencyContact: e.target.value,
-                    })
-                  }
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FFDD00] focus:border-transparent"
-                />
+                </h4>
+
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Nome*
+                    </label>
+                    <input
+                      type="text"
+                      value={profileData.emergencyContactName}
+                      onChange={(e) =>
+                        handleEmergencyNameChange(e.target.value)
+                      }
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FFDD00] focus:border-transparent"
+                      placeholder="Nome completo do contato"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Telefone*
+                    </label>
+                    <input
+                      type="tel"
+                      value={profileData.emergencyContactPhone}
+                      onChange={(e) =>
+                        handleEmergencyPhoneChange(e.target.value)
+                      }
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FFDD00] focus:border-transparent"
+                      placeholder="(00) 00000-0000"
+                      maxLength={15}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Relação*
+                    </label>
+                    <select
+                      value={profileData.emergencyContactRelation}
+                      onChange={(e) =>
+                        setProfileData({
+                          ...profileData,
+                          emergencyContactRelation: e.target.value,
+                        })
+                      }
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FFDD00] focus:border-transparent"
+                    >
+                      <option value="">Selecione a relação</option>
+                      <option value="pai">Pai</option>
+                      <option value="mae">Mãe</option>
+                      <option value="avo">Avô/Avó</option>
+                      <option value="tio">Tio/Tia</option>
+                      <option value="irmao">Irmão/Irmã</option>
+                      <option value="responsavel">Responsável Legal</option>
+                      <option value="outro">Outro</option>
+                    </select>
+                  </div>
+                </div>
               </div>
             </div>
 

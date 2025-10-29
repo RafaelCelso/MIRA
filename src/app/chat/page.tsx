@@ -246,13 +246,15 @@ export default function ChatListPage() {
               <span className="text-xs text-gray-400">Transporte</span>
             </Button>
           </Link>
-          <Button
-            variant="ghost"
-            className="flex flex-col items-center space-y-0.5 p-2"
-          >
-            <User className="w-5 h-5 text-gray-400" />
-            <span className="text-xs text-gray-400">Perfil</span>
-          </Button>
+          <Link href="/profile/parent">
+            <Button
+              variant="ghost"
+              className="flex flex-col items-center space-y-0.5 p-2"
+            >
+              <User className="w-5 h-5 text-gray-400" />
+              <span className="text-xs text-gray-400">Perfil</span>
+            </Button>
+          </Link>
         </div>
       </nav>
 

@@ -19,6 +19,7 @@ import {
   Calendar,
   Maximize2,
   Minimize2,
+  QrCode,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 
@@ -219,7 +220,7 @@ export default function ParentDashboard() {
             : "bg-[#FFDD00] border-b border-[#E6C700]"
         }`}
       >
-        <div className="flex items-center justify-between">
+        <div className="flex items-center">
           <div className="flex items-center space-x-2">
             <Image
               src="/images/Simplificado 1.webp"
@@ -228,9 +229,6 @@ export default function ParentDashboard() {
               height={32}
             />
           </div>
-          <Button variant="ghost" size="lg" className="p-3 hover:bg-black/10">
-            <User className="w-12 h-12 text-black" />
-          </Button>
         </div>
       </header>
 
@@ -442,6 +440,109 @@ export default function ParentDashboard() {
           </Card>
         </div>
 
+        {/* QR Code Section */}
+        <section>
+          <Card className="bg-white shadow-sm border border-gray-200">
+            <CardContent className="p-4">
+              <div className="flex items-center space-x-2 mb-4">
+                <div className="w-6 h-6 bg-[#FFDD00] border border-black rounded flex items-center justify-center">
+                  <QrCode className="w-4 h-4 text-black" />
+                </div>
+                <h3 className="text-sm font-semibold text-gray-700">
+                  QR Code do Aluno
+                </h3>
+              </div>
+
+              <div className="flex items-center justify-center bg-gray-50 rounded-xl p-6">
+                {/* QR Code simulado */}
+                <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+                  <div className="w-32 h-32 bg-black relative">
+                    {/* Padrão QR Code simulado */}
+                    <div className="absolute inset-0 grid grid-cols-8 grid-rows-8 gap-px p-1">
+                      {/* Cantos de posicionamento */}
+                      <div className="bg-white col-span-3 row-span-3 border-2 border-black">
+                        <div className="w-full h-full bg-black m-1"></div>
+                      </div>
+                      <div className="bg-white"></div>
+                      <div className="bg-white"></div>
+                      <div className="bg-white col-span-3 row-span-3 border-2 border-black">
+                        <div className="w-full h-full bg-black m-1"></div>
+                      </div>
+
+                      {/* Linha de separação */}
+                      <div className="bg-white"></div>
+                      <div className="bg-black"></div>
+                      <div className="bg-white"></div>
+                      <div className="bg-black"></div>
+                      <div className="bg-white"></div>
+                      <div className="bg-black"></div>
+                      <div className="bg-white"></div>
+                      <div className="bg-white"></div>
+
+                      {/* Padrão central */}
+                      <div className="bg-black"></div>
+                      <div className="bg-white"></div>
+                      <div className="bg-black"></div>
+                      <div className="bg-white"></div>
+                      <div className="bg-black"></div>
+                      <div className="bg-white"></div>
+                      <div className="bg-black"></div>
+                      <div className="bg-white"></div>
+
+                      <div className="bg-white"></div>
+                      <div className="bg-black"></div>
+                      <div className="bg-white"></div>
+                      <div className="bg-black"></div>
+                      <div className="bg-white"></div>
+                      <div className="bg-black"></div>
+                      <div className="bg-white"></div>
+                      <div className="bg-black"></div>
+
+                      <div className="bg-black"></div>
+                      <div className="bg-white"></div>
+                      <div className="bg-black"></div>
+                      <div className="bg-white"></div>
+                      <div className="bg-black"></div>
+                      <div className="bg-white"></div>
+                      <div className="bg-black"></div>
+                      <div className="bg-white"></div>
+
+                      {/* Canto inferior esquerdo */}
+                      <div className="bg-white col-span-3 row-span-3 border-2 border-black">
+                        <div className="w-full h-full bg-black m-1"></div>
+                      </div>
+                      <div className="bg-white"></div>
+                      <div className="bg-black"></div>
+                      <div className="bg-white"></div>
+                      <div className="bg-black"></div>
+                      <div className="bg-white"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-4 text-center">
+                <p className="text-xs text-gray-600 mb-2">
+                  Apresente este QR Code para o motorista
+                </p>
+                <div className="flex items-center justify-center space-x-4 text-xs text-gray-500">
+                  <span>
+                    ID: {selectedStudent === "joao" ? "0001" : "0002"}
+                  </span>
+                  <span>•</span>
+                  <span>
+                    Rota: {selectedStudent === "joao" ? "Rota 5" : "Rota 3"}
+                  </span>
+                  <span>•</span>
+                  <span>
+                    Ônibus: {selectedStudent === "joao" ? "MIRA-05" : "MIRA-03"}
+                  </span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </section>
+
         {/* Real-time Location */}
         <section>
           <h2 className="text-xl font-bold text-gray-900 mb-4">
@@ -615,13 +716,15 @@ export default function ParentDashboard() {
               <span className="text-xs text-gray-400">Transporte</span>
             </Button>
           </Link>
-          <Button
-            variant="ghost"
-            className="flex flex-col items-center space-y-0.5 p-2"
-          >
-            <User className="w-5 h-5 text-gray-400" />
-            <span className="text-xs text-gray-400">Perfil</span>
-          </Button>
+          <Link href="/profile/parent">
+            <Button
+              variant="ghost"
+              className="flex flex-col items-center space-y-0.5 p-2"
+            >
+              <User className="w-5 h-5 text-gray-400" />
+              <span className="text-xs text-gray-400">Perfil</span>
+            </Button>
+          </Link>
         </div>
       </nav>
 

@@ -698,7 +698,7 @@ export default function ParentDashboard() {
             <MapPin className="w-5 h-5 text-yellow-500" />
             <span className="text-xs text-yellow-500 font-medium">Início</span>
           </Button>
-          <Link href="/chat">
+          <Link href="/chat/parent">
             <Button
               variant="ghost"
               className="flex flex-col items-center space-y-0.5 p-2 cursor-pointer"

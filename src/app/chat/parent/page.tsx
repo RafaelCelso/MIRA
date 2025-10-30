@@ -13,7 +13,7 @@ import {
 import { useState } from "react";
 import Link from "next/link";
 
-export default function ChatListPage() {
+export default function ParentChatPage() {
   const [showContactModal, setShowContactModal] = useState(false);
   const [showSearchBar, setShowSearchBar] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -203,7 +203,7 @@ export default function ChatListPage() {
       )}
 
       {/* Conversations List */}
-      <div className="flex-1">
+      <div className="flex-1 pb-20">
         {filteredConversations.length > 0 ? (
           filteredConversations.map((conversation) => (
             <Link key={conversation.id} href="/chat/conversation">
@@ -316,9 +316,6 @@ export default function ChatListPage() {
           </Link>
         </div>
       </nav>
-
-      {/* Padding bottom para compensar a navegação fixa */}
-      <div className="h-20"></div>
 
       {/* Modal de Seleção de Contatos */}
       {showContactModal && (
@@ -510,3 +507,4 @@ export default function ChatListPage() {
     </div>
   );
 }
+

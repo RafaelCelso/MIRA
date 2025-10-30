@@ -1014,7 +1014,7 @@ export default function TransportParentPage() {
               <span className="text-xs text-gray-400">Início</span>
             </Button>
           </Link>
-          <Link href="/chat">
+          <Link href="/chat/parent">
             <Button
               variant="ghost"
               className="flex flex-col items-center space-y-0.5 p-2 cursor-pointer"

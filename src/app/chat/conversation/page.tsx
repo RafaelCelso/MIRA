@@ -170,7 +170,7 @@ export default function ConversationPage() {
       <header className="bg-[#FFDD00] px-4 py-3 shadow-sm">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <Link href="/chat">
+            <Link href="/chat/parent">
               <Button
                 variant="ghost"
                 size="sm"
@@ -330,7 +330,7 @@ export default function ConversationPage() {
               <span className="text-xs text-gray-400">Início</span>
             </Button>
           </Link>
-          <Link href="/chat">
+          <Link href="/chat/parent">
             <Button
               variant="ghost"
               className="flex flex-col items-center space-y-0.5 p-2 cursor-pointer"

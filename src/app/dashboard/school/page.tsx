@@ -53,8 +53,8 @@ export default function SchoolDashboard() {
     studentsAbsent: 67,
     routesActive: 10,
     routesCompleted: 8,
-    alerts: 3,
-    messages: 15,
+    driversActive: 12,
+    vehiclesOperating: 10,
   };
 
   // Rotas ativas
@@ -181,73 +181,6 @@ export default function SchoolDashboard() {
           <p className="text-sm text-gray-600">Dashboard Escolar</p>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Card className="bg-white shadow-sm border border-gray-200">
-            <CardContent className="p-4">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                  <Users className="w-5 h-5 text-blue-600" />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Alunos Presentes</p>
-                  <p className="text-xl font-bold text-gray-900">
-                    {todayStats.studentsPresent}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-white shadow-sm border border-gray-200">
-            <CardContent className="p-4">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                  <Bus className="w-5 h-5 text-green-600" />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Rotas Ativas</p>
-                  <p className="text-xl font-bold text-gray-900">
-                    {todayStats.routesActive}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-white shadow-sm border border-gray-200">
-            <CardContent className="p-4">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center">
-                  <AlertTriangle className="w-5 h-5 text-yellow-600" />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Alertas</p>
-                  <p className="text-xl font-bold text-gray-900">
-                    {todayStats.alerts}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-white shadow-sm border border-gray-200">
-            <CardContent className="p-4">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
-                  <MessageCircle className="w-5 h-5 text-purple-600" />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Mensagens</p>
-                  <p className="text-xl font-bold text-gray-900">
-                    {todayStats.messages}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
         {/* Quick Actions */}
         <Card className="bg-white shadow-sm border border-gray-200">
           <CardContent className="p-4">
@@ -255,15 +188,19 @@ export default function SchoolDashboard() {
               Ações Rápidas
             </h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              <Button
-                variant="outline"
-                className="h-20 flex flex-col items-center justify-center space-y-2 border-gray-300 hover:bg-gray-50 cursor-pointer"
-              >
-                <div className="w-12 h-12 bg-[#FFDD00] rounded-full flex items-center justify-center border-2 border-black">
-                  <Users className="w-7 h-7 text-black" />
-                </div>
-                <span className="text-sm text-gray-700">Gerenciar Alunos</span>
-              </Button>
+              <Link href="/students/school" className="w-full">
+                <Button
+                  variant="outline"
+                  className="w-full h-20 flex flex-col items-center justify-center space-y-2 border-gray-300 hover:bg-gray-50 cursor-pointer"
+                >
+                  <div className="w-12 h-12 bg-[#FFDD00] rounded-full flex items-center justify-center border-2 border-black">
+                    <Users className="w-7 h-7 text-black" />
+                  </div>
+                  <span className="text-sm text-gray-700">
+                    Gerenciar Alunos
+                  </span>
+                </Button>
+              </Link>
               <Button
                 variant="outline"
                 className="h-20 flex flex-col items-center justify-center space-y-2 border-gray-300 hover:bg-gray-50 cursor-pointer"
@@ -419,13 +356,13 @@ export default function SchoolDashboard() {
               <span className="text-xs text-gray-400">Alunos</span>
             </Button>
           </Link>
-          <Link href="/routes/school">
+          <Link href="/drivers/school">
             <Button
               variant="ghost"
               className="flex flex-col items-center space-y-0.5 p-2 cursor-pointer"
             >
               <Bus className="w-5 h-5 text-gray-400" />
-              <span className="text-xs text-gray-400">Rotas</span>
+              <span className="text-xs text-gray-400">Motoristas</span>
             </Button>
           </Link>
           <Link href="/chat/school">

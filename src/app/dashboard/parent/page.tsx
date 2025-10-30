@@ -693,7 +693,7 @@ export default function ParentDashboard() {
         <div className="flex justify-around items-center">
           <Button
             variant="ghost"
-            className="flex flex-col items-center space-y-0.5 p-2"
+            className="flex flex-col items-center space-y-0.5 p-2 cursor-pointer"
           >
             <MapPin className="w-5 h-5 text-yellow-500" />
             <span className="text-xs text-yellow-500 font-medium">Início</span>
@@ -701,7 +701,7 @@ export default function ParentDashboard() {
           <Link href="/chat">
             <Button
               variant="ghost"
-              className="flex flex-col items-center space-y-0.5 p-2"
+              className="flex flex-col items-center space-y-0.5 p-2 cursor-pointer"
             >
               <MessageCircle className="w-5 h-5 text-gray-400" />
               <span className="text-xs text-gray-400">Chat</span>
@@ -719,7 +719,7 @@ export default function ParentDashboard() {
           <Link href="/profile/parent">
             <Button
               variant="ghost"
-              className="flex flex-col items-center space-y-0.5 p-2"
+              className="flex flex-col items-center space-y-0.5 p-2 cursor-pointer"
             >
               <User className="w-5 h-5 text-gray-400" />
               <span className="text-xs text-gray-400">Perfil</span>

@@ -19,48 +19,90 @@ import {
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 
 export default function ConversationPage() {
+  const searchParams = useSearchParams();
   const [currentTime, setCurrentTime] = useState("");
   const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState([
-    {
-      id: 1,
-      sender: "parent",
-      content: "Boa tarde, Carlos! Como está o trânsito hoje?",
-      timestamp: "14:32",
-      status: "read",
-    },
-    {
-      id: 2,
-      sender: "driver",
-      content:
-        "Boa tarde! Está tranquilo, sem congestionamentos. Devo chegar no horário normal.",
-      timestamp: "14:33",
-      status: "delivered",
-    },
-    {
-      id: 3,
-      sender: "parent",
-      content: "Perfeito! Obrigada pela informação 😊",
-      timestamp: "14:34",
-      status: "read",
-    },
-    {
-      id: 4,
-      sender: "driver",
-      content: "Estou chegando na sua rua em aproximadamente 5 minutos.",
-      timestamp: "15:42",
-      status: "delivered",
-    },
-    {
-      id: 5,
-      sender: "parent",
-      content: "Já estou indo",
-      timestamp: "15:43",
-      status: "sent",
-    },
-  ]);
+
+  // Capturar dados do contato dos query parameters
+  const contactName = searchParams.get("contactName") || "Carlos Santos";
+  const contactPhone = searchParams.get("contactPhone") || "(11) 99999-1234";
+  const contactType = searchParams.get("contactType") || "Motorista";
+  const childName = searchParams.get("childName") || "João Silva";
+  const route = searchParams.get("route") || "Rota 5";
+  const busNumber = searchParams.get("busNumber") || "MIRA-05";
+  // Mensagens dinâmicas baseadas no tipo de contato
+  const getInitialMessages = () => {
+    const contactFirstName = contactName.split(" ")[0];
+    if (contactType === "Motorista") {
+      return [
+        {
+          id: 1,
+          sender: "parent",
+          content: `Boa tarde, ${contactFirstName}! Como está o trânsito hoje?`,
+          timestamp: "14:32",
+          status: "read",
+        },
+        {
+          id: 2,
+          sender: "driver",
+          content:
+            "Boa tarde! Está tranquilo, sem congestionamentos. Devo chegar no horário normal.",
+          timestamp: "14:33",
+          status: "delivered",
+        },
+        {
+          id: 3,
+          sender: "parent",
+          content: "Perfeito! Obrigada pela informação 😊",
+          timestamp: "14:34",
+          status: "read",
+        },
+        {
+          id: 4,
+          sender: "driver",
+          content: "Estou chegando na sua rua em aproximadamente 5 minutos.",
+          timestamp: "15:42",
+          status: "delivered",
+        },
+        {
+          id: 5,
+          sender: "parent",
+          content: "Já estou indo",
+          timestamp: "15:43",
+          status: "sent",
+        },
+      ];
+    } else {
+      return [
+        {
+          id: 1,
+          sender: "parent",
+          content: `Olá, ${contactFirstName}! Como está o ${childName} hoje?`,
+          timestamp: "14:32",
+          status: "read",
+        },
+        {
+          id: 2,
+          sender: "assistant",
+          content: `Oi! O ${childName} está bem, muito animado hoje! 😊`,
+          timestamp: "14:33",
+          status: "delivered",
+        },
+        {
+          id: 3,
+          sender: "parent",
+          content: "Que bom! Obrigada por cuidar dele.",
+          timestamp: "14:34",
+          status: "read",
+        },
+      ];
+    }
+  };
+
+  const [messages, setMessages] = useState(getInitialMessages());
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -132,7 +174,7 @@ export default function ConversationPage() {
               <Button
                 variant="ghost"
                 size="sm"
-                className="p-2 hover:bg-black/10 rounded-full"
+                className="p-2 hover:bg-black/10 rounded-full cursor-pointer"
               >
                 <ArrowLeft className="w-5 h-5 text-black" />
               </Button>
@@ -145,27 +187,10 @@ export default function ConversationPage() {
                 </div>
               </div>
               <div>
-                <h1 className="text-lg font-bold text-black">Carlos Santos</h1>
-                <p className="text-xs text-black/70">Motorista • Online</p>
+                <h1 className="text-lg font-bold text-black">{contactName}</h1>
+                <p className="text-xs text-black/70">{contactType} • Online</p>
               </div>
             </div>
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="p-2 hover:bg-black/10 rounded-full"
-            >
-              <Phone className="w-5 h-5 text-black" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="p-2 hover:bg-black/10 rounded-full"
-            >
-              <MoreVertical className="w-5 h-5 text-black" />
-            </Button>
           </div>
         </div>
       </header>
@@ -234,7 +259,7 @@ export default function ConversationPage() {
             variant="outline"
             size="sm"
             onClick={() => setMessage("Já estou indo")}
-            className="whitespace-nowrap text-xs px-3 py-1 h-8 bg-[#FFDD00] border-2 border-black text-black hover:bg-[#E6C700] hover:text-black"
+            className="whitespace-nowrap text-xs px-3 py-1 h-8 bg-[#FFDD00] border-2 border-black text-black hover:bg-[#E6C700] hover:text-black cursor-pointer"
           >
             Já estou indo
           </Button>
@@ -242,7 +267,7 @@ export default function ConversationPage() {
             variant="outline"
             size="sm"
             onClick={() => setMessage("Estou descendo")}
-            className="whitespace-nowrap text-xs px-3 py-1 h-8 bg-[#FFDD00] border-2 border-black text-black hover:bg-[#E6C700] hover:text-black"
+            className="whitespace-nowrap text-xs px-3 py-1 h-8 bg-[#FFDD00] border-2 border-black text-black hover:bg-[#E6C700] hover:text-black cursor-pointer"
           >
             Estou descendo
           </Button>
@@ -250,7 +275,7 @@ export default function ConversationPage() {
             variant="outline"
             size="sm"
             onClick={() => setMessage("Só um minuto, por favor")}
-            className="whitespace-nowrap text-xs px-3 py-1 h-8 bg-[#FFDD00] border-2 border-black text-black hover:bg-[#E6C700] hover:text-black"
+            className="whitespace-nowrap text-xs px-3 py-1 h-8 bg-[#FFDD00] border-2 border-black text-black hover:bg-[#E6C700] hover:text-black cursor-pointer"
           >
             Só um minuto
           </Button>
@@ -258,7 +283,7 @@ export default function ConversationPage() {
             variant="outline"
             size="sm"
             onClick={() => setMessage("Obrigado!")}
-            className="whitespace-nowrap text-xs px-3 py-1 h-8 bg-[#FFDD00] border-2 border-black text-black hover:bg-[#E6C700] hover:text-black"
+            className="whitespace-nowrap text-xs px-3 py-1 h-8 bg-[#FFDD00] border-2 border-black text-black hover:bg-[#E6C700] hover:text-black cursor-pointer"
           >
             Obrigado!
           </Button>
@@ -286,7 +311,7 @@ export default function ConversationPage() {
           <Button
             onClick={sendMessage}
             disabled={!message.trim()}
-            className="bg-[#FFDD00] hover:bg-[#E6C700] text-black p-3 rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-[#FFDD00] hover:bg-[#E6C700] text-black p-3 rounded-full disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >
             <Send className="w-5 h-5" />
           </Button>
@@ -299,7 +324,7 @@ export default function ConversationPage() {
           <Link href="/dashboard/parent">
             <Button
               variant="ghost"
-              className="flex flex-col items-center space-y-0.5 p-2"
+              className="flex flex-col items-center space-y-0.5 p-2 cursor-pointer"
             >
               <MapPin className="w-5 h-5 text-gray-400" />
               <span className="text-xs text-gray-400">Início</span>
@@ -308,26 +333,30 @@ export default function ConversationPage() {
           <Link href="/chat">
             <Button
               variant="ghost"
-              className="flex flex-col items-center space-y-0.5 p-2"
+              className="flex flex-col items-center space-y-0.5 p-2 cursor-pointer"
             >
               <MessageCircle className="w-5 h-5 text-yellow-500" />
               <span className="text-xs text-yellow-500 font-medium">Chat</span>
             </Button>
           </Link>
-          <Button
-            variant="ghost"
-            className="flex flex-col items-center space-y-0.5 p-2"
-          >
-            <Bus className="w-5 h-5 text-gray-400" />
-            <span className="text-xs text-gray-400">Transporte</span>
-          </Button>
-          <Button
-            variant="ghost"
-            className="flex flex-col items-center space-y-0.5 p-2"
-          >
-            <User className="w-5 h-5 text-gray-400" />
-            <span className="text-xs text-gray-400">Perfil</span>
-          </Button>
+          <Link href="/transport/parent">
+            <Button
+              variant="ghost"
+              className="flex flex-col items-center space-y-0.5 p-2 cursor-pointer"
+            >
+              <Bus className="w-5 h-5 text-gray-400" />
+              <span className="text-xs text-gray-400">Transporte</span>
+            </Button>
+          </Link>
+          <Link href="/profile/parent">
+            <Button
+              variant="ghost"
+              className="flex flex-col items-center space-y-0.5 p-2 cursor-pointer"
+            >
+              <User className="w-5 h-5 text-gray-400" />
+              <span className="text-xs text-gray-400">Perfil</span>
+            </Button>
+          </Link>
         </div>
       </nav>
     </div>

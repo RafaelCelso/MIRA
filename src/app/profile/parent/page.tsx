@@ -13,7 +13,6 @@ import {
   Phone,
   Mail,
   Edit,
-  Bell,
   Shield,
   HelpCircle,
   LogOut,
@@ -24,6 +23,7 @@ import {
   Eye,
   EyeOff,
   Users,
+  Plus,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 
@@ -31,28 +31,58 @@ export default function ParentProfile() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
-  const [showNotificationSettings, setShowNotificationSettings] =
-    useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [showPasswordFields, setShowPasswordFields] = useState(false);
+  const [showEmergencyContact, setShowEmergencyContact] = useState(false);
+  const [showAddStudentModal, setShowAddStudentModal] = useState(false);
+  const [showEditStudentModal, setShowEditStudentModal] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState<any>(null);
 
   // Dados dos alunos cadastrados
-  const students = [
+  const [students, setStudents] = useState([
     {
       id: 1,
       name: "João Silva",
+      age: "13",
+      gender: "masculino",
       grade: "8º ano - Turma A",
+      period: "manha",
+      specialCare: "nao",
       school: "Colégio São José",
       avatarColor: "from-blue-400 to-blue-600",
     },
     {
       id: 2,
       name: "Maria Silva",
+      age: "10",
+      gender: "feminino",
       grade: "5º ano - Turma B",
+      period: "tarde",
+      specialCare: "sim",
       school: "Escola Municipal Santos",
       avatarColor: "from-green-400 to-green-600",
     },
-  ];
+  ]);
+
+  // Estados para adicionar novo aluno
+  const [newStudentData, setNewStudentData] = useState({
+    name: "",
+    age: "",
+    gender: "",
+    grade: "",
+    period: "",
+    specialCare: "",
+  });
+
+  // Estados para editar aluno
+  const [editStudentData, setEditStudentData] = useState({
+    name: "",
+    age: "",
+    gender: "",
+    grade: "",
+    period: "",
+    specialCare: "",
+  });
 
   // Estados para edição de perfil
   const [profileData, setProfileData] = useState({
@@ -77,23 +107,144 @@ export default function ParentProfile() {
     emergencyContact: "João Silva - (11) 88888-8888",
   });
 
-  // Estados para configurações de notificação
-  const [notifications, setNotifications] = useState({
-    busLocation: true,
-    arrival: true,
-    departure: true,
-    delays: true,
-    emergencies: true,
-    messages: true,
-    weeklyReport: false,
-  });
-
   // Estados para alteração de senha
   const [passwordData, setPasswordData] = useState({
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
   });
+
+  // Estados para erros de validação
+  const [passwordErrors, setPasswordErrors] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+
+  // Função para limpar erro específico quando o usuário digita
+  const clearPasswordError = (field: string) => {
+    if (passwordErrors[field as keyof typeof passwordErrors]) {
+      setPasswordErrors((prev) => ({
+        ...prev,
+        [field]: "",
+      }));
+    }
+  };
+
+  // Função para validar requisitos da senha em tempo real
+  const validatePasswordRequirements = (password: string) => {
+    return {
+      minLength: password.length >= 8,
+      hasUppercase: /[A-Z]/.test(password),
+      hasLowercase: /[a-z]/.test(password),
+      hasNumber: /\d/.test(password),
+    };
+  };
+
+  // Função para adicionar novo aluno
+  const handleAddStudent = () => {
+    if (
+      !newStudentData.name ||
+      !newStudentData.age ||
+      !newStudentData.gender ||
+      !newStudentData.grade ||
+      !newStudentData.period ||
+      !newStudentData.specialCare
+    ) {
+      alert("Por favor, preencha todos os campos obrigatórios.");
+      return;
+    }
+
+    // Cores disponíveis para avatares
+    const avatarColors = [
+      "from-blue-400 to-blue-600",
+      "from-green-400 to-green-600",
+      "from-purple-400 to-purple-600",
+      "from-red-400 to-red-600",
+      "from-yellow-400 to-yellow-600",
+      "from-pink-400 to-pink-600",
+      "from-indigo-400 to-indigo-600",
+      "from-teal-400 to-teal-600",
+    ];
+
+    const newStudent = {
+      id: students.length + 1,
+      name: newStudentData.name,
+      age: newStudentData.age,
+      gender: newStudentData.gender,
+      grade: newStudentData.grade,
+      period: newStudentData.period,
+      specialCare: newStudentData.specialCare,
+      school: "Escola MIRA", // Valor padrão ou pode ser configurável
+      avatarColor: avatarColors[students.length % avatarColors.length],
+    };
+
+    setStudents([...students, newStudent]);
+    setNewStudentData({
+      name: "",
+      age: "",
+      gender: "",
+      grade: "",
+      period: "",
+      specialCare: "",
+    });
+    setShowAddStudentModal(false);
+  };
+
+  // Função para abrir modal de edição de aluno
+  const handleEditStudent = (student: any) => {
+    setSelectedStudent(student);
+    setEditStudentData({
+      name: student.name,
+      age: student.age || "",
+      gender: student.gender || "",
+      grade: student.grade,
+      period: student.period || "",
+      specialCare: student.specialCare || "",
+    });
+    setShowEditStudentModal(true);
+  };
+
+  // Função para salvar alterações do aluno
+  const handleSaveStudentChanges = () => {
+    if (
+      !editStudentData.name ||
+      !editStudentData.age ||
+      !editStudentData.gender ||
+      !editStudentData.grade ||
+      !editStudentData.period ||
+      !editStudentData.specialCare
+    ) {
+      alert("Por favor, preencha todos os campos obrigatórios.");
+      return;
+    }
+
+    const updatedStudents = students.map((student) =>
+      student.id === selectedStudent?.id
+        ? {
+            ...student,
+            name: editStudentData.name,
+            age: editStudentData.age,
+            gender: editStudentData.gender,
+            grade: editStudentData.grade,
+            period: editStudentData.period,
+            specialCare: editStudentData.specialCare,
+          }
+        : student
+    );
+
+    setStudents(updatedStudents);
+    setShowEditStudentModal(false);
+    setSelectedStudent(null);
+    setEditStudentData({
+      name: "",
+      age: "",
+      gender: "",
+      grade: "",
+      period: "",
+      specialCare: "",
+    });
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -104,6 +255,13 @@ export default function ParentProfile() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  // Mostrar seção de contato de emergência se houver dados preenchidos
+  useEffect(() => {
+    if (profileData.emergencyContactName || profileData.emergencyContactPhone) {
+      setShowEmergencyContact(true);
+    }
+  }, [profileData.emergencyContactName, profileData.emergencyContactPhone]);
 
   const handleSaveProfile = () => {
     // Aqui seria a integração com a API para salvar os dados
@@ -218,10 +376,55 @@ export default function ParentProfile() {
   };
 
   const handleSavePassword = () => {
-    if (passwordData.newPassword !== passwordData.confirmPassword) {
-      alert("As senhas não coincidem!");
+    // Limpar erros anteriores
+    setPasswordErrors({
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+    });
+
+    let hasErrors = false;
+    const newErrors = {
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+    };
+
+    // Validar senha atual
+    if (!passwordData.currentPassword) {
+      newErrors.currentPassword = "Senha atual é obrigatória";
+      hasErrors = true;
+    }
+
+    // Validar nova senha
+    if (!passwordData.newPassword) {
+      newErrors.newPassword = "Nova senha é obrigatória";
+      hasErrors = true;
+    } else if (passwordData.newPassword.length < 8) {
+      newErrors.newPassword = "A senha deve ter pelo menos 8 caracteres";
+      hasErrors = true;
+    } else if (
+      !/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(passwordData.newPassword)
+    ) {
+      newErrors.newPassword =
+        "A senha deve conter ao menos uma letra maiúscula, uma minúscula e um número";
+      hasErrors = true;
+    }
+
+    // Validar confirmação de senha
+    if (!passwordData.confirmPassword) {
+      newErrors.confirmPassword = "Confirmação de senha é obrigatória";
+      hasErrors = true;
+    } else if (passwordData.newPassword !== passwordData.confirmPassword) {
+      newErrors.confirmPassword = "As senhas não coincidem";
+      hasErrors = true;
+    }
+
+    if (hasErrors) {
+      setPasswordErrors(newErrors);
       return;
     }
+
     // Aqui seria a integração com a API para alterar a senha
     console.log("Alterando senha");
     setPasswordData({
@@ -229,13 +432,12 @@ export default function ParentProfile() {
       newPassword: "",
       confirmPassword: "",
     });
+    setPasswordErrors({
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+    });
     setShowPasswordModal(false);
-  };
-
-  const handleSaveNotifications = () => {
-    // Aqui seria a integração com a API para salvar as configurações
-    console.log("Salvando configurações:", notifications);
-    setShowNotificationSettings(false);
   };
 
   const handleLogout = () => {
@@ -254,7 +456,7 @@ export default function ParentProfile() {
             : "bg-[#FFDD00] border-b border-[#E6C700]"
         }`}
       >
-        <div className="flex items-center justify-between">
+        <div className="flex items-center">
           <div className="flex items-center space-x-2">
             <Image
               src="/images/Simplificado 1.webp"
@@ -263,9 +465,6 @@ export default function ParentProfile() {
               height={32}
             />
           </div>
-          <Button variant="ghost" size="lg" className="p-3 hover:bg-black/10">
-            <User className="w-12 h-12 text-black" />
-          </Button>
         </div>
       </header>
 
@@ -316,6 +515,7 @@ export default function ParentProfile() {
             {students.map((student, index) => (
               <Card
                 key={student.id}
+                onClick={() => handleEditStudent(student)}
                 className="min-w-[240px] shadow-lg border-2 hover:shadow-xl transition-all duration-300 cursor-pointer relative bg-gradient-to-br from-[#FFDD00] to-[#E6C700] border-black hover:scale-105 z-0"
               >
                 <CardContent className="p-3">
@@ -343,6 +543,23 @@ export default function ParentProfile() {
                 </CardContent>
               </Card>
             ))}
+
+            {/* Botão Adicionar Aluno */}
+            <Card
+              onClick={() => setShowAddStudentModal(true)}
+              className="min-w-[240px] shadow-lg border-2 hover:shadow-xl transition-all duration-300 cursor-pointer relative bg-white border-dashed border-gray-300 hover:border-[#FFDD00] hover:bg-gray-50 hover:scale-105 z-0"
+            >
+              <CardContent className="p-3 h-full flex items-center justify-center">
+                <div className="text-center">
+                  <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-2 bg-gray-100 text-gray-400">
+                    <Plus className="w-6 h-6" />
+                  </div>
+                  <p className="text-sm font-medium text-gray-600">
+                    Adicionar Aluno
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
 
@@ -355,7 +572,7 @@ export default function ParentProfile() {
               onClick={() => setShowEditModal(true)}
               variant="outline"
               size="sm"
-              className="border-gray-300 text-gray-700 hover:bg-gray-50"
+              className="border-gray-300 text-gray-700 hover:bg-gray-50 cursor-pointer"
             >
               <Edit className="w-4 h-4 mr-2" />
               Editar
@@ -492,34 +709,21 @@ export default function ParentProfile() {
           </h2>
 
           <div className="space-y-3">
-            {/* Notificações */}
-            <Card className="bg-white shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-200">
-              <CardContent className="p-0">
-                <Button
-                  onClick={() => setShowNotificationSettings(true)}
-                  variant="ghost"
-                  className="w-full p-4 justify-start hover:bg-gray-50"
-                >
-                  <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-3">
-                    <Bell className="w-5 h-5 text-blue-600" />
-                  </div>
-                  <div className="flex-1 text-left">
-                    <p className="font-medium text-gray-900">Notificações</p>
-                    <p className="text-sm text-gray-500">
-                      Gerencie suas preferências de notificação
-                    </p>
-                  </div>
-                </Button>
-              </CardContent>
-            </Card>
-
             {/* Segurança */}
             <Card className="bg-white shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-200">
               <CardContent className="p-0">
                 <Button
-                  onClick={() => setShowPasswordModal(true)}
+                  onClick={() => {
+                    setShowPasswordModal(true);
+                    // Limpar erros ao abrir o modal
+                    setPasswordErrors({
+                      currentPassword: "",
+                      newPassword: "",
+                      confirmPassword: "",
+                    });
+                  }}
                   variant="ghost"
-                  className="w-full p-4 justify-start hover:bg-gray-50"
+                  className="w-full p-4 justify-start hover:bg-gray-50 cursor-pointer"
                 >
                   <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mr-3">
                     <Shield className="w-5 h-5 text-green-600" />
@@ -539,7 +743,7 @@ export default function ParentProfile() {
               <CardContent className="p-0">
                 <Button
                   variant="ghost"
-                  className="w-full p-4 justify-start hover:bg-gray-50"
+                  className="w-full p-4 justify-start hover:bg-gray-50 cursor-pointer"
                 >
                   <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center mr-3">
                     <HelpCircle className="w-5 h-5 text-purple-600" />
@@ -560,7 +764,7 @@ export default function ParentProfile() {
                 <Button
                   onClick={() => setShowLogoutConfirm(true)}
                   variant="ghost"
-                  className="w-full p-4 justify-start hover:bg-red-50 text-red-600"
+                  className="w-full p-4 justify-start hover:bg-red-50 text-red-600 cursor-pointer"
                 >
                   <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center mr-3">
                     <LogOut className="w-5 h-5 text-red-600" />
@@ -589,7 +793,7 @@ export default function ParentProfile() {
                 className="mx-auto mb-2"
               />
               <p className="text-xs text-gray-500 mb-1">
-                MIRA - Transporte Escolar
+                MIRA | Monitoramento Infantil em Rota Assistida
               </p>
               <p className="text-xs text-gray-400">Versão 1.0.0</p>
             </CardContent>
@@ -603,7 +807,7 @@ export default function ParentProfile() {
           <Link href="/dashboard/parent">
             <Button
               variant="ghost"
-              className="flex flex-col items-center space-y-0.5 p-2"
+              className="flex flex-col items-center space-y-0.5 p-2 cursor-pointer"
             >
               <MapPin className="w-5 h-5 text-gray-400" />
               <span className="text-xs text-gray-400">Início</span>
@@ -612,7 +816,7 @@ export default function ParentProfile() {
           <Link href="/chat">
             <Button
               variant="ghost"
-              className="flex flex-col items-center space-y-0.5 p-2"
+              className="flex flex-col items-center space-y-0.5 p-2 cursor-pointer"
             >
               <MessageCircle className="w-5 h-5 text-gray-400" />
               <span className="text-xs text-gray-400">Chat</span>
@@ -621,7 +825,7 @@ export default function ParentProfile() {
           <Link href="/transport/parent">
             <Button
               variant="ghost"
-              className="flex flex-col items-center space-y-0.5 p-2"
+              className="flex flex-col items-center space-y-0.5 p-2 cursor-pointer"
             >
               <Bus className="w-5 h-5 text-gray-400" />
               <span className="text-xs text-gray-400">Transporte</span>
@@ -629,7 +833,7 @@ export default function ParentProfile() {
           </Link>
           <Button
             variant="ghost"
-            className="flex flex-col items-center space-y-0.5 p-2"
+            className="flex flex-col items-center space-y-0.5 p-2 cursor-pointer"
           >
             <User className="w-5 h-5 text-yellow-500" />
             <span className="text-xs text-yellow-500 font-medium">Perfil</span>
@@ -657,7 +861,7 @@ export default function ParentProfile() {
                 variant="ghost"
                 size="sm"
                 onClick={() => setShowEditModal(false)}
-                className="p-1 hover:bg-black/10 rounded-full"
+                className="p-1 hover:bg-black/10 rounded-full cursor-pointer"
               >
                 <X className="w-5 h-5 text-black" />
               </Button>
@@ -961,67 +1165,91 @@ export default function ParentProfile() {
               </div>
               {/* Seção de Contato de Emergência */}
               <div>
-                <h4 className="text-md font-semibold text-gray-800 mb-3">
-                  Contato de Emergência
-                </h4>
-
-                <div className="space-y-3">
+                {!showEmergencyContact ? (
+                  <button
+                    type="button"
+                    onClick={() => setShowEmergencyContact(true)}
+                    className="w-full p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-[#FFDD00] hover:bg-[#FFDD00]/5 transition-colors cursor-pointer flex items-center justify-center text-gray-600 hover:text-gray-800"
+                  >
+                    <Plus className="w-5 h-5 mr-2" />
+                    Contato de Emergência
+                  </button>
+                ) : (
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Nome*
-                    </label>
-                    <input
-                      type="text"
-                      value={profileData.emergencyContactName}
-                      onChange={(e) =>
-                        handleEmergencyNameChange(e.target.value)
-                      }
-                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FFDD00] focus:border-transparent"
-                      placeholder="Nome completo do contato"
-                    />
-                  </div>
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="text-md font-semibold text-gray-800">
+                        Contato de Emergência
+                      </h4>
+                      <button
+                        type="button"
+                        onClick={() => setShowEmergencyContact(false)}
+                        className="text-gray-500 hover:text-gray-700 p-1"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Telefone*
-                    </label>
-                    <input
-                      type="tel"
-                      value={profileData.emergencyContactPhone}
-                      onChange={(e) =>
-                        handleEmergencyPhoneChange(e.target.value)
-                      }
-                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FFDD00] focus:border-transparent"
-                      placeholder="(00) 00000-0000"
-                      maxLength={15}
-                    />
-                  </div>
+                    <div className="space-y-3">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Nome*
+                        </label>
+                        <input
+                          type="text"
+                          value={profileData.emergencyContactName}
+                          onChange={(e) =>
+                            handleEmergencyNameChange(e.target.value)
+                          }
+                          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FFDD00] focus:border-transparent"
+                          placeholder="Nome completo do contato"
+                        />
+                      </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Relação*
-                    </label>
-                    <select
-                      value={profileData.emergencyContactRelation}
-                      onChange={(e) =>
-                        setProfileData({
-                          ...profileData,
-                          emergencyContactRelation: e.target.value,
-                        })
-                      }
-                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FFDD00] focus:border-transparent"
-                    >
-                      <option value="">Selecione a relação</option>
-                      <option value="pai">Pai</option>
-                      <option value="mae">Mãe</option>
-                      <option value="avo">Avô/Avó</option>
-                      <option value="tio">Tio/Tia</option>
-                      <option value="irmao">Irmão/Irmã</option>
-                      <option value="responsavel">Responsável Legal</option>
-                      <option value="outro">Outro</option>
-                    </select>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Telefone*
+                        </label>
+                        <input
+                          type="tel"
+                          value={profileData.emergencyContactPhone}
+                          onChange={(e) =>
+                            handleEmergencyPhoneChange(e.target.value)
+                          }
+                          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FFDD00] focus:border-transparent"
+                          placeholder="(00) 00000-0000"
+                          maxLength={15}
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Relação
+                        </label>
+                        <select
+                          value={profileData.emergencyContactRelation}
+                          onChange={(e) =>
+                            setProfileData({
+                              ...profileData,
+                              emergencyContactRelation: e.target.value,
+                            })
+                          }
+                          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FFDD00] focus:border-transparent"
+                        >
+                          <option value="">
+                            Selecione a relação (opcional)
+                          </option>
+                          <option value="pai">Pai</option>
+                          <option value="mae">Mãe</option>
+                          <option value="avo">Avô/Avó</option>
+                          <option value="tio">Tio/Tia</option>
+                          <option value="irmao">Irmão/Irmã</option>
+                          <option value="responsavel">Responsável Legal</option>
+                          <option value="outro">Outro</option>
+                        </select>
+                      </div>
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             </div>
 
@@ -1030,275 +1258,16 @@ export default function ParentProfile() {
               <Button
                 variant="outline"
                 onClick={() => setShowEditModal(false)}
-                className="flex-1 border-gray-300 text-gray-700 hover:bg-gray-50"
+                className="flex-1 border-gray-300 text-gray-700 hover:bg-gray-50 cursor-pointer"
               >
                 Cancelar
               </Button>
               <Button
                 onClick={handleSaveProfile}
-                className="flex-1 bg-[#FFDD00] hover:bg-[#E6C700] text-black font-semibold"
+                className="flex-1 bg-[#FFDD00] hover:bg-[#E6C700] text-black font-semibold cursor-pointer"
               >
                 <Save className="w-4 h-4 mr-2" />
                 Salvar
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Modal de Configurações de Notificação */}
-      {showNotificationSettings && (
-        <div
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-          onClick={() => setShowNotificationSettings(false)}
-        >
-          <div
-            className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[80vh] overflow-hidden"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Header do Modal */}
-            <div className="bg-blue-500 px-6 py-4 flex items-center justify-between">
-              <h3 className="text-lg font-bold text-white">Notificações</h3>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowNotificationSettings(false)}
-                className="p-1 hover:bg-white/10 rounded-full"
-              >
-                <X className="w-5 h-5 text-white" />
-              </Button>
-            </div>
-
-            {/* Conteúdo do Modal */}
-            <div className="p-6 space-y-4 max-h-[60vh] overflow-y-auto">
-              <div className="space-y-4">
-                {/* Localização do Ônibus */}
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium text-gray-900">
-                      Localização do Ônibus
-                    </p>
-                    <p className="text-sm text-gray-500">
-                      Atualizações em tempo real
-                    </p>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() =>
-                      setNotifications({
-                        ...notifications,
-                        busLocation: !notifications.busLocation,
-                      })
-                    }
-                    className={`w-12 h-6 rounded-full p-0 ${
-                      notifications.busLocation ? "bg-[#FFDD00]" : "bg-gray-300"
-                    }`}
-                  >
-                    <div
-                      className={`w-5 h-5 bg-white rounded-full shadow-md transition-transform duration-200 ${
-                        notifications.busLocation
-                          ? "translate-x-6"
-                          : "translate-x-0"
-                      }`}
-                    />
-                  </Button>
-                </div>
-
-                {/* Chegada na Escola */}
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium text-gray-900">
-                      Chegada na Escola
-                    </p>
-                    <p className="text-sm text-gray-500">
-                      Quando o aluno chegar
-                    </p>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() =>
-                      setNotifications({
-                        ...notifications,
-                        arrival: !notifications.arrival,
-                      })
-                    }
-                    className={`w-12 h-6 rounded-full p-0 ${
-                      notifications.arrival ? "bg-[#FFDD00]" : "bg-gray-300"
-                    }`}
-                  >
-                    <div
-                      className={`w-5 h-5 bg-white rounded-full shadow-md transition-transform duration-200 ${
-                        notifications.arrival
-                          ? "translate-x-6"
-                          : "translate-x-0"
-                      }`}
-                    />
-                  </Button>
-                </div>
-
-                {/* Saída da Escola */}
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium text-gray-900">Saída da Escola</p>
-                    <p className="text-sm text-gray-500">
-                      Quando o ônibus sair
-                    </p>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() =>
-                      setNotifications({
-                        ...notifications,
-                        departure: !notifications.departure,
-                      })
-                    }
-                    className={`w-12 h-6 rounded-full p-0 ${
-                      notifications.departure ? "bg-[#FFDD00]" : "bg-gray-300"
-                    }`}
-                  >
-                    <div
-                      className={`w-5 h-5 bg-white rounded-full shadow-md transition-transform duration-200 ${
-                        notifications.departure
-                          ? "translate-x-6"
-                          : "translate-x-0"
-                      }`}
-                    />
-                  </Button>
-                </div>
-
-                {/* Atrasos */}
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium text-gray-900">Atrasos</p>
-                    <p className="text-sm text-gray-500">
-                      Notificações de trânsito
-                    </p>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() =>
-                      setNotifications({
-                        ...notifications,
-                        delays: !notifications.delays,
-                      })
-                    }
-                    className={`w-12 h-6 rounded-full p-0 ${
-                      notifications.delays ? "bg-[#FFDD00]" : "bg-gray-300"
-                    }`}
-                  >
-                    <div
-                      className={`w-5 h-5 bg-white rounded-full shadow-md transition-transform duration-200 ${
-                        notifications.delays ? "translate-x-6" : "translate-x-0"
-                      }`}
-                    />
-                  </Button>
-                </div>
-
-                {/* Emergências */}
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium text-gray-900">Emergências</p>
-                    <p className="text-sm text-gray-500">Alertas importantes</p>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() =>
-                      setNotifications({
-                        ...notifications,
-                        emergencies: !notifications.emergencies,
-                      })
-                    }
-                    className={`w-12 h-6 rounded-full p-0 ${
-                      notifications.emergencies ? "bg-[#FFDD00]" : "bg-gray-300"
-                    }`}
-                  >
-                    <div
-                      className={`w-5 h-5 bg-white rounded-full shadow-md transition-transform duration-200 ${
-                        notifications.emergencies
-                          ? "translate-x-6"
-                          : "translate-x-0"
-                      }`}
-                    />
-                  </Button>
-                </div>
-
-                {/* Mensagens */}
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium text-gray-900">Mensagens</p>
-                    <p className="text-sm text-gray-500">Chat com motorista</p>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() =>
-                      setNotifications({
-                        ...notifications,
-                        messages: !notifications.messages,
-                      })
-                    }
-                    className={`w-12 h-6 rounded-full p-0 ${
-                      notifications.messages ? "bg-[#FFDD00]" : "bg-gray-300"
-                    }`}
-                  >
-                    <div
-                      className={`w-5 h-5 bg-white rounded-full shadow-md transition-transform duration-200 ${
-                        notifications.messages
-                          ? "translate-x-6"
-                          : "translate-x-0"
-                      }`}
-                    />
-                  </Button>
-                </div>
-
-                {/* Relatório Semanal */}
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium text-gray-900">
-                      Relatório Semanal
-                    </p>
-                    <p className="text-sm text-gray-500">Resumo da semana</p>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() =>
-                      setNotifications({
-                        ...notifications,
-                        weeklyReport: !notifications.weeklyReport,
-                      })
-                    }
-                    className={`w-12 h-6 rounded-full p-0 ${
-                      notifications.weeklyReport
-                        ? "bg-[#FFDD00]"
-                        : "bg-gray-300"
-                    }`}
-                  >
-                    <div
-                      className={`w-5 h-5 bg-white rounded-full shadow-md transition-transform duration-200 ${
-                        notifications.weeklyReport
-                          ? "translate-x-6"
-                          : "translate-x-0"
-                      }`}
-                    />
-                  </Button>
-                </div>
-              </div>
-            </div>
-
-            {/* Footer do Modal */}
-            <div className="bg-gray-50 px-6 py-4 border-t border-gray-200">
-              <Button
-                onClick={handleSaveNotifications}
-                className="w-full bg-[#FFDD00] hover:bg-[#E6C700] text-black font-semibold py-3"
-              >
-                <Save className="w-4 h-4 mr-2" />
-                Salvar Configurações
               </Button>
             </div>
           </div>
@@ -1312,19 +1281,19 @@ export default function ParentProfile() {
           onClick={() => setShowPasswordModal(false)}
         >
           <div
-            className="bg-white rounded-2xl shadow-2xl w-full max-w-md"
+            className="bg-white rounded-3xl shadow-2xl w-full max-w-md"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header do Modal */}
-            <div className="bg-green-500 px-6 py-4 flex items-center justify-between">
-              <h3 className="text-lg font-bold text-white">Alterar Senha</h3>
+            <div className="bg-[#FFDD00] px-6 py-4 flex items-center justify-between rounded-t-3xl">
+              <h3 className="text-lg font-bold text-black">Alterar Senha</h3>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setShowPasswordModal(false)}
-                className="p-1 hover:bg-white/10 rounded-full"
+                className="p-1 hover:bg-black/10 rounded-full cursor-pointer"
               >
-                <X className="w-5 h-5 text-white" />
+                <X className="w-5 h-5 text-black" />
               </Button>
             </div>
 
@@ -1338,13 +1307,18 @@ export default function ParentProfile() {
                   <input
                     type={showPasswordFields ? "text" : "password"}
                     value={passwordData.currentPassword}
-                    onChange={(e) =>
+                    onChange={(e) => {
                       setPasswordData({
                         ...passwordData,
                         currentPassword: e.target.value,
-                      })
-                    }
-                    className="w-full p-3 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                      });
+                      clearPasswordError("currentPassword");
+                    }}
+                    className={`w-full p-3 pr-10 border rounded-lg focus:ring-2 focus:ring-[#FFDD00] focus:border-transparent ${
+                      passwordErrors.currentPassword
+                        ? "border-red-500"
+                        : "border-gray-300"
+                    }`}
                     placeholder="Digite sua senha atual"
                   />
                   <Button
@@ -1360,6 +1334,11 @@ export default function ParentProfile() {
                     )}
                   </Button>
                 </div>
+                {passwordErrors.currentPassword && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {passwordErrors.currentPassword}
+                  </p>
+                )}
               </div>
 
               <div>
@@ -1369,15 +1348,25 @@ export default function ParentProfile() {
                 <input
                   type={showPasswordFields ? "text" : "password"}
                   value={passwordData.newPassword}
-                  onChange={(e) =>
+                  onChange={(e) => {
                     setPasswordData({
                       ...passwordData,
                       newPassword: e.target.value,
-                    })
-                  }
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    });
+                    clearPasswordError("newPassword");
+                  }}
+                  className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-[#FFDD00] focus:border-transparent ${
+                    passwordErrors.newPassword
+                      ? "border-red-500"
+                      : "border-gray-300"
+                  }`}
                   placeholder="Digite a nova senha"
                 />
+                {passwordErrors.newPassword && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {passwordErrors.newPassword}
+                  </p>
+                )}
               </div>
 
               <div>
@@ -1387,15 +1376,25 @@ export default function ParentProfile() {
                 <input
                   type={showPasswordFields ? "text" : "password"}
                   value={passwordData.confirmPassword}
-                  onChange={(e) =>
+                  onChange={(e) => {
                     setPasswordData({
                       ...passwordData,
                       confirmPassword: e.target.value,
-                    })
-                  }
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    });
+                    clearPasswordError("confirmPassword");
+                  }}
+                  className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-[#FFDD00] focus:border-transparent ${
+                    passwordErrors.confirmPassword
+                      ? "border-red-500"
+                      : "border-gray-300"
+                  }`}
                   placeholder="Confirme a nova senha"
                 />
+                {passwordErrors.confirmPassword && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {passwordErrors.confirmPassword}
+                  </p>
+                )}
               </div>
 
               {/* Requisitos da senha */}
@@ -1403,21 +1402,82 @@ export default function ParentProfile() {
                 <p className="text-xs text-gray-600 mb-2">
                   A senha deve conter:
                 </p>
-                <ul className="text-xs text-gray-500 space-y-1">
-                  <li>• Pelo menos 8 caracteres</li>
-                  <li>• Uma letra maiúscula</li>
-                  <li>• Uma letra minúscula</li>
-                  <li>• Um número</li>
+                <ul className="text-xs space-y-1">
+                  {(() => {
+                    const requirements = validatePasswordRequirements(
+                      passwordData.newPassword
+                    );
+                    return (
+                      <>
+                        <li
+                          className={`flex items-center gap-2 ${
+                            requirements.minLength
+                              ? "text-green-600"
+                              : "text-gray-500"
+                          }`}
+                        >
+                          {requirements.minLength ? (
+                            <Check className="w-3 h-3" />
+                          ) : (
+                            <span className="w-3 h-3 text-center">•</span>
+                          )}
+                          Pelo menos 8 caracteres
+                        </li>
+                        <li
+                          className={`flex items-center gap-2 ${
+                            requirements.hasUppercase
+                              ? "text-green-600"
+                              : "text-gray-500"
+                          }`}
+                        >
+                          {requirements.hasUppercase ? (
+                            <Check className="w-3 h-3" />
+                          ) : (
+                            <span className="w-3 h-3 text-center">•</span>
+                          )}
+                          Uma letra maiúscula
+                        </li>
+                        <li
+                          className={`flex items-center gap-2 ${
+                            requirements.hasLowercase
+                              ? "text-green-600"
+                              : "text-gray-500"
+                          }`}
+                        >
+                          {requirements.hasLowercase ? (
+                            <Check className="w-3 h-3" />
+                          ) : (
+                            <span className="w-3 h-3 text-center">•</span>
+                          )}
+                          Uma letra minúscula
+                        </li>
+                        <li
+                          className={`flex items-center gap-2 ${
+                            requirements.hasNumber
+                              ? "text-green-600"
+                              : "text-gray-500"
+                          }`}
+                        >
+                          {requirements.hasNumber ? (
+                            <Check className="w-3 h-3" />
+                          ) : (
+                            <span className="w-3 h-3 text-center">•</span>
+                          )}
+                          Um número
+                        </li>
+                      </>
+                    );
+                  })()}
                 </ul>
               </div>
             </div>
 
             {/* Footer do Modal */}
-            <div className="bg-gray-50 px-6 py-4 border-t border-gray-200 flex gap-3">
+            <div className="bg-gray-50 px-6 py-4 border-t border-gray-200 flex gap-3 rounded-b-3xl">
               <Button
                 variant="outline"
                 onClick={() => setShowPasswordModal(false)}
-                className="flex-1 border-gray-300 text-gray-700 hover:bg-gray-50"
+                className="flex-1 border-gray-300 text-gray-700 hover:bg-gray-50 cursor-pointer"
               >
                 Cancelar
               </Button>
@@ -1428,7 +1488,7 @@ export default function ParentProfile() {
                   !passwordData.newPassword ||
                   !passwordData.confirmPassword
                 }
-                className="flex-1 bg-green-500 hover:bg-green-600 text-white font-semibold disabled:opacity-50"
+                className="flex-1 bg-[#FFDD00] hover:bg-[#E6C700] text-black font-semibold disabled:opacity-50 cursor-pointer"
               >
                 <Save className="w-4 h-4 mr-2" />
                 Alterar
@@ -1471,17 +1531,484 @@ export default function ParentProfile() {
                 <Button
                   variant="outline"
                   onClick={() => setShowLogoutConfirm(false)}
-                  className="flex-1 border-gray-300 text-gray-700 hover:bg-gray-50"
+                  className="flex-1 border-gray-300 text-gray-700 hover:bg-gray-50 cursor-pointer"
                 >
                   Cancelar
                 </Button>
                 <Button
                   onClick={handleLogout}
-                  className="flex-1 bg-red-500 hover:bg-red-600 text-white font-semibold"
+                  className="flex-1 bg-red-500 hover:bg-red-600 text-white font-semibold cursor-pointer"
                 >
                   Sair
                 </Button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Adicionar Aluno */}
+      {showAddStudentModal && (
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          onClick={() => {
+            setShowAddStudentModal(false);
+            setNewStudentData({
+              name: "",
+              age: "",
+              gender: "",
+              grade: "",
+              period: "",
+              specialCare: "",
+            });
+          }}
+        >
+          <div
+            className="bg-white rounded-3xl shadow-2xl w-full max-w-md"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header do Modal */}
+            <div className="bg-[#FFDD00] px-6 py-4 flex items-center justify-between rounded-t-3xl">
+              <h3 className="text-lg font-bold text-black">Adicionar Aluno</h3>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setShowAddStudentModal(false);
+                  setNewStudentData({
+                    name: "",
+                    age: "",
+                    gender: "",
+                    grade: "",
+                    period: "",
+                    specialCare: "",
+                  });
+                }}
+                className="p-1 hover:bg-black/10 rounded-full cursor-pointer"
+              >
+                <X className="w-5 h-5 text-black" />
+              </Button>
+            </div>
+
+            {/* Conteúdo do Modal */}
+            <div className="p-6 space-y-4">
+              {/* Nome Completo */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Nome Completo do Aluno *
+                </label>
+                <input
+                  type="text"
+                  value={newStudentData.name}
+                  onChange={(e) =>
+                    setNewStudentData({
+                      ...newStudentData,
+                      name: e.target.value,
+                    })
+                  }
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FFDD00] focus:border-transparent"
+                  placeholder="Digite o nome completo do aluno"
+                />
+              </div>
+
+              {/* Idade */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Idade *
+                </label>
+                <input
+                  type="number"
+                  min="3"
+                  max="18"
+                  value={newStudentData.age}
+                  onChange={(e) =>
+                    setNewStudentData({
+                      ...newStudentData,
+                      age: e.target.value,
+                    })
+                  }
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FFDD00] focus:border-transparent"
+                  placeholder="Digite a idade do aluno"
+                />
+              </div>
+
+              {/* Sexo */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Sexo *
+                </label>
+                <select
+                  value={newStudentData.gender}
+                  onChange={(e) =>
+                    setNewStudentData({
+                      ...newStudentData,
+                      gender: e.target.value,
+                    })
+                  }
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FFDD00] focus:border-transparent"
+                >
+                  <option value="">Selecione o sexo</option>
+                  <option value="masculino">Masculino</option>
+                  <option value="feminino">Feminino</option>
+                </select>
+              </div>
+
+              {/* Turma */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Turma *
+                </label>
+                <input
+                  type="text"
+                  value={newStudentData.grade}
+                  onChange={(e) =>
+                    setNewStudentData({
+                      ...newStudentData,
+                      grade: e.target.value,
+                    })
+                  }
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FFDD00] focus:border-transparent"
+                  placeholder="Ex: 8º ano - Turma A"
+                />
+              </div>
+
+              {/* Período */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Período *
+                </label>
+                <select
+                  value={newStudentData.period}
+                  onChange={(e) =>
+                    setNewStudentData({
+                      ...newStudentData,
+                      period: e.target.value,
+                    })
+                  }
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FFDD00] focus:border-transparent"
+                >
+                  <option value="">Selecione o período</option>
+                  <option value="manha">Manhã</option>
+                  <option value="tarde">Tarde</option>
+                  <option value="integral">Integral</option>
+                </select>
+              </div>
+
+              {/* Cuidados Especiais */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Cuidados especiais *
+                </label>
+                <div className="flex gap-4">
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      name="specialCare"
+                      value="sim"
+                      checked={newStudentData.specialCare === "sim"}
+                      onChange={(e) =>
+                        setNewStudentData({
+                          ...newStudentData,
+                          specialCare: e.target.value,
+                        })
+                      }
+                      className="mr-2 text-[#FFDD00] focus:ring-[#FFDD00]"
+                    />
+                    <span className="text-sm text-gray-700">Sim</span>
+                  </label>
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      name="specialCare"
+                      value="nao"
+                      checked={newStudentData.specialCare === "nao"}
+                      onChange={(e) =>
+                        setNewStudentData({
+                          ...newStudentData,
+                          specialCare: e.target.value,
+                        })
+                      }
+                      className="mr-2 text-[#FFDD00] focus:ring-[#FFDD00]"
+                    />
+                    <span className="text-sm text-gray-700">Não</span>
+                  </label>
+                </div>
+              </div>
+
+              <div className="bg-gray-50 rounded-lg p-3">
+                <p className="text-xs text-gray-600">* Campos obrigatórios</p>
+              </div>
+            </div>
+
+            {/* Footer do Modal */}
+            <div className="bg-gray-50 px-6 py-4 border-t border-gray-200 flex gap-3 rounded-b-3xl">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowAddStudentModal(false);
+                  setNewStudentData({
+                    name: "",
+                    age: "",
+                    gender: "",
+                    grade: "",
+                    period: "",
+                    specialCare: "",
+                  });
+                }}
+                className="flex-1 border-gray-300 text-gray-700 hover:bg-gray-50 cursor-pointer"
+              >
+                Cancelar
+              </Button>
+              <Button
+                onClick={handleAddStudent}
+                disabled={
+                  !newStudentData.name ||
+                  !newStudentData.age ||
+                  !newStudentData.gender ||
+                  !newStudentData.grade ||
+                  !newStudentData.period ||
+                  !newStudentData.specialCare
+                }
+                className="flex-1 bg-[#FFDD00] hover:bg-[#E6C700] text-black font-semibold disabled:opacity-50 cursor-pointer"
+              >
+                <Users className="w-4 h-4 mr-2" />
+                Adicionar
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Editar Aluno */}
+      {showEditStudentModal && selectedStudent && (
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          onClick={() => {
+            setShowEditStudentModal(false);
+            setSelectedStudent(null);
+            setEditStudentData({
+              name: "",
+              age: "",
+              gender: "",
+              grade: "",
+              period: "",
+              specialCare: "",
+            });
+          }}
+        >
+          <div
+            className="bg-white rounded-3xl shadow-2xl w-full max-w-md"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header do Modal */}
+            <div className="bg-[#FFDD00] px-6 py-4 flex items-center justify-between rounded-t-3xl">
+              <h3 className="text-lg font-bold text-black">Editar Aluno</h3>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setShowEditStudentModal(false);
+                  setSelectedStudent(null);
+                  setEditStudentData({
+                    name: "",
+                    age: "",
+                    gender: "",
+                    grade: "",
+                    period: "",
+                    specialCare: "",
+                  });
+                }}
+                className="p-1 hover:bg-black/10 rounded-full cursor-pointer"
+              >
+                <X className="w-5 h-5 text-black" />
+              </Button>
+            </div>
+
+            {/* Conteúdo do Modal */}
+            <div className="p-6 space-y-4">
+              {/* Nome Completo */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Nome Completo do Aluno *
+                </label>
+                <input
+                  type="text"
+                  value={editStudentData.name}
+                  onChange={(e) =>
+                    setEditStudentData({
+                      ...editStudentData,
+                      name: e.target.value,
+                    })
+                  }
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FFDD00] focus:border-transparent"
+                  placeholder="Digite o nome completo do aluno"
+                />
+              </div>
+
+              {/* Idade */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Idade *
+                </label>
+                <input
+                  type="number"
+                  min="3"
+                  max="18"
+                  value={editStudentData.age}
+                  onChange={(e) =>
+                    setEditStudentData({
+                      ...editStudentData,
+                      age: e.target.value,
+                    })
+                  }
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FFDD00] focus:border-transparent"
+                  placeholder="Digite a idade do aluno"
+                />
+              </div>
+
+              {/* Sexo */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Sexo *
+                </label>
+                <select
+                  value={editStudentData.gender}
+                  onChange={(e) =>
+                    setEditStudentData({
+                      ...editStudentData,
+                      gender: e.target.value,
+                    })
+                  }
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FFDD00] focus:border-transparent"
+                >
+                  <option value="">Selecione o sexo</option>
+                  <option value="masculino">Masculino</option>
+                  <option value="feminino">Feminino</option>
+                </select>
+              </div>
+
+              {/* Turma */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Turma *
+                </label>
+                <input
+                  type="text"
+                  value={editStudentData.grade}
+                  onChange={(e) =>
+                    setEditStudentData({
+                      ...editStudentData,
+                      grade: e.target.value,
+                    })
+                  }
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FFDD00] focus:border-transparent"
+                  placeholder="Ex: 8º ano - Turma A"
+                />
+              </div>
+
+              {/* Período */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Período *
+                </label>
+                <select
+                  value={editStudentData.period}
+                  onChange={(e) =>
+                    setEditStudentData({
+                      ...editStudentData,
+                      period: e.target.value,
+                    })
+                  }
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FFDD00] focus:border-transparent"
+                >
+                  <option value="">Selecione o período</option>
+                  <option value="manha">Manhã</option>
+                  <option value="tarde">Tarde</option>
+                  <option value="integral">Integral</option>
+                </select>
+              </div>
+
+              {/* Cuidados Especiais */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Cuidados especiais *
+                </label>
+                <div className="flex gap-4">
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      name="editSpecialCare"
+                      value="sim"
+                      checked={editStudentData.specialCare === "sim"}
+                      onChange={(e) =>
+                        setEditStudentData({
+                          ...editStudentData,
+                          specialCare: e.target.value,
+                        })
+                      }
+                      className="mr-2 text-[#FFDD00] focus:ring-[#FFDD00]"
+                    />
+                    <span className="text-sm text-gray-700">Sim</span>
+                  </label>
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      name="editSpecialCare"
+                      value="nao"
+                      checked={editStudentData.specialCare === "nao"}
+                      onChange={(e) =>
+                        setEditStudentData({
+                          ...editStudentData,
+                          specialCare: e.target.value,
+                        })
+                      }
+                      className="mr-2 text-[#FFDD00] focus:ring-[#FFDD00]"
+                    />
+                    <span className="text-sm text-gray-700">Não</span>
+                  </label>
+                </div>
+              </div>
+
+              <div className="bg-gray-50 rounded-lg p-3">
+                <p className="text-xs text-gray-600">* Campos obrigatórios</p>
+              </div>
+            </div>
+
+            {/* Footer do Modal */}
+            <div className="bg-gray-50 px-6 py-4 border-t border-gray-200 flex gap-3 rounded-b-3xl">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowEditStudentModal(false);
+                  setSelectedStudent(null);
+                  setEditStudentData({
+                    name: "",
+                    age: "",
+                    gender: "",
+                    grade: "",
+                    period: "",
+                    specialCare: "",
+                  });
+                }}
+                className="flex-1 border-gray-300 text-gray-700 hover:bg-gray-50 cursor-pointer"
+              >
+                Cancelar
+              </Button>
+              <Button
+                onClick={handleSaveStudentChanges}
+                disabled={
+                  !editStudentData.name ||
+                  !editStudentData.age ||
+                  !editStudentData.gender ||
+                  !editStudentData.grade ||
+                  !editStudentData.period ||
+                  !editStudentData.specialCare
+                }
+                className="flex-1 bg-[#FFDD00] hover:bg-[#E6C700] text-black font-semibold disabled:opacity-50 cursor-pointer"
+              >
+                <Save className="w-4 h-4 mr-2" />
+                Salvar Alterações
+              </Button>
             </div>
           </div>
         </div>

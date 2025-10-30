@@ -27,8 +27,10 @@ import {
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function TransportParentPage() {
+  const router = useRouter();
   const [selectedChild, setSelectedChild] = useState(0);
   const [selectedPeriod, setSelectedPeriod] = useState<"ida" | "volta">("ida");
   const [showHelpModal, setShowHelpModal] = useState(false);
@@ -154,6 +156,36 @@ export default function TransportParentPage() {
           bgColor: "bg-gray-100",
         };
     }
+  };
+
+  // Função para abrir chat com contato específico
+  const openChatWithContact = (
+    contactName: string,
+    contactPhone: string,
+    contactType: string
+  ) => {
+    // Criar um objeto com os dados do contato para passar para a página de chat
+    const contactData = {
+      name: contactName,
+      phone: contactPhone,
+      type: contactType,
+      childName: currentChild.name,
+      route: currentChild.route,
+      busNumber: currentChild.busNumber,
+    };
+
+    // Navegar para a página de conversação com os dados do contato
+    // Usando query parameters para passar os dados
+    const queryParams = new URLSearchParams({
+      contactName: contactData.name,
+      contactPhone: contactData.phone,
+      contactType: contactData.type,
+      childName: contactData.childName,
+      route: contactData.route,
+      busNumber: contactData.busNumber,
+    });
+
+    router.push(`/chat/conversation?${queryParams.toString()}`);
   };
 
   const currentChild = children[selectedChild];
@@ -766,6 +798,13 @@ export default function TransportParentPage() {
                 <Button
                   variant="outline"
                   size="sm"
+                  onClick={() =>
+                    openChatWithContact(
+                      currentChild.transport[selectedPeriod].driver,
+                      currentChild.transport[selectedPeriod].driverPhone,
+                      "Motorista"
+                    )
+                  }
                   className="bg-[#FFDD00] hover:bg-[#E6C700] text-black border-black cursor-pointer"
                 >
                   <MessageCircle className="w-4 h-4 mr-1" />
@@ -794,6 +833,13 @@ export default function TransportParentPage() {
                 <Button
                   variant="outline"
                   size="sm"
+                  onClick={() =>
+                    openChatWithContact(
+                      currentChild.transport[selectedPeriod].assistant,
+                      currentChild.transport[selectedPeriod].assistantPhone,
+                      "Ajudante"
+                    )
+                  }
                   className="bg-[#FFDD00] hover:bg-[#E6C700] text-black border-black cursor-pointer"
                 >
                   <MessageCircle className="w-4 h-4 mr-1" />
@@ -979,7 +1025,7 @@ export default function TransportParentPage() {
           </Link>
           <Button
             variant="ghost"
-            className="flex flex-col items-center space-y-0.5 p-2"
+            className="flex flex-col items-center space-y-0.5 p-2 cursor-pointer"
           >
             <Bus className="w-5 h-5 text-yellow-500" />
             <span className="text-xs text-yellow-500 font-medium">

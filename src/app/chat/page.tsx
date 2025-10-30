@@ -15,6 +15,8 @@ import Link from "next/link";
 
 export default function ChatListPage() {
   const [showContactModal, setShowContactModal] = useState(false);
+  const [showSearchBar, setShowSearchBar] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const [conversations] = useState([
     {
       id: 1,
@@ -143,6 +145,21 @@ export default function ChatListPage() {
     // Navegar para a conversa ou criar nova conversa
   };
 
+  // Função para filtrar conversas baseada na busca
+  const filteredConversations = conversations.filter(
+    (conversation) =>
+      conversation.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      conversation.lastMessage.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // Função para alternar a barra de busca
+  const toggleSearchBar = () => {
+    setShowSearchBar(!showSearchBar);
+    if (showSearchBar) {
+      setSearchQuery(""); // Limpar busca ao fechar
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -152,6 +169,7 @@ export default function ChatListPage() {
           <Button
             variant="ghost"
             size="sm"
+            onClick={toggleSearchBar}
             className="p-2 hover:bg-black/10 rounded-full cursor-pointer"
           >
             <Search className="w-6 h-6 text-black" />
@@ -159,53 +177,94 @@ export default function ChatListPage() {
         </div>
       </header>
 
+      {/* Search Bar */}
+      {showSearchBar && (
+        <div className="bg-white border-b border-gray-200 px-4 py-3">
+          <div className="relative">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Buscar conversas..."
+              className="w-full p-3 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FFDD00] focus:border-transparent"
+              autoFocus
+            />
+            <button
+              onClick={() => {
+                setSearchQuery("");
+                setShowSearchBar(false);
+              }}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Conversations List */}
       <div className="flex-1">
-        {conversations.map((conversation) => (
-          <Link key={conversation.id} href="/chat/conversation">
-            <div className="bg-white border-b border-gray-100 px-4 py-4 hover:bg-gray-50 transition-colors cursor-pointer">
-              <div className="flex items-center space-x-3">
-                {/* Avatar */}
-                <div className="relative">
-                  <div
-                    className={`w-12 h-12 rounded-full bg-gradient-to-br ${conversation.avatarColor} flex items-center justify-center shadow-md`}
-                  >
-                    <span className="text-white font-bold text-sm">
-                      {conversation.avatar}
-                    </span>
-                  </div>
-                  {conversation.isOnline && (
-                    <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>
-                  )}
-                </div>
-
-                {/* Conversation Info */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between mb-1">
-                    <h3 className="text-base font-semibold text-gray-900 truncate">
-                      {conversation.name}
-                    </h3>
-                    <div className="flex items-center space-x-2">
-                      <span className="text-xs text-gray-500">
-                        {conversation.timestamp}
+        {filteredConversations.length > 0 ? (
+          filteredConversations.map((conversation) => (
+            <Link key={conversation.id} href="/chat/conversation">
+              <div className="bg-white border-b border-gray-100 px-4 py-4 hover:bg-gray-50 transition-colors cursor-pointer">
+                <div className="flex items-center space-x-3">
+                  {/* Avatar */}
+                  <div className="relative">
+                    <div
+                      className={`w-12 h-12 rounded-full bg-gradient-to-br ${conversation.avatarColor} flex items-center justify-center shadow-md`}
+                    >
+                      <span className="text-white font-bold text-sm">
+                        {conversation.avatar}
                       </span>
-                      {conversation.unreadCount > 0 && (
-                        <div className="w-5 h-5 bg-[#FFDD00] rounded-full flex items-center justify-center">
-                          <span className="text-xs font-bold text-black">
-                            {conversation.unreadCount}
-                          </span>
-                        </div>
-                      )}
                     </div>
+                    {conversation.isOnline && (
+                      <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>
+                    )}
                   </div>
-                  <p className="text-sm text-gray-600 truncate">
-                    {conversation.lastMessage}
-                  </p>
+
+                  {/* Conversation Info */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between mb-1">
+                      <h3 className="text-base font-semibold text-gray-900 truncate">
+                        {conversation.name}
+                      </h3>
+                      <div className="flex items-center space-x-2">
+                        <span className="text-xs text-gray-500">
+                          {conversation.timestamp}
+                        </span>
+                        {conversation.unreadCount > 0 && (
+                          <div className="w-5 h-5 bg-[#FFDD00] rounded-full flex items-center justify-center">
+                            <span className="text-xs font-bold text-black">
+                              {conversation.unreadCount}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-600 truncate">
+                      {conversation.lastMessage}
+                    </p>
+                  </div>
                 </div>
               </div>
+            </Link>
+          ))
+        ) : (
+          <div className="flex flex-col items-center justify-center py-12 px-4">
+            <div className="text-gray-400 mb-4">
+              <Search className="w-12 h-12" />
             </div>
-          </Link>
-        ))}
+            <h3 className="text-lg font-medium text-gray-600 mb-2">
+              Nenhuma conversa encontrada
+            </h3>
+            <p className="text-sm text-gray-500 text-center">
+              {searchQuery
+                ? `Não encontramos conversas com "${searchQuery}"`
+                : "Você ainda não tem conversas"}
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Floating Action Button */}
@@ -224,7 +283,7 @@ export default function ChatListPage() {
           <Link href="/dashboard/parent">
             <Button
               variant="ghost"
-              className="flex flex-col items-center space-y-0.5 p-2"
+              className="flex flex-col items-center space-y-0.5 p-2 cursor-pointer"
             >
               <MapPin className="w-5 h-5 text-gray-400" />
               <span className="text-xs text-gray-400">Início</span>
@@ -232,7 +291,7 @@ export default function ChatListPage() {
           </Link>
           <Button
             variant="ghost"
-            className="flex flex-col items-center space-y-0.5 p-2"
+            className="flex flex-col items-center space-y-0.5 p-2 cursor-pointer"
           >
             <MessageCircle className="w-5 h-5 text-yellow-500" />
             <span className="text-xs text-yellow-500 font-medium">Chat</span>
@@ -249,7 +308,7 @@ export default function ChatListPage() {
           <Link href="/profile/parent">
             <Button
               variant="ghost"
-              className="flex flex-col items-center space-y-0.5 p-2"
+              className="flex flex-col items-center space-y-0.5 p-2 cursor-pointer"
             >
               <User className="w-5 h-5 text-gray-400" />
               <span className="text-xs text-gray-400">Perfil</span>
@@ -278,7 +337,7 @@ export default function ChatListPage() {
                 variant="ghost"
                 size="sm"
                 onClick={() => setShowContactModal(false)}
-                className="p-1 hover:bg-black/10 rounded-full"
+                className="p-1 hover:bg-black/10 rounded-full cursor-pointer"
               >
                 <X className="w-5 h-5 text-black" />
               </Button>

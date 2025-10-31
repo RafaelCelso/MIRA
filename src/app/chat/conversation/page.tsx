@@ -17,11 +17,11 @@ import {
   Check,
   CheckCheck,
 } from "lucide-react";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
-export default function ConversationPage() {
+function ConversationContent() {
   const searchParams = useSearchParams();
   const [currentTime, setCurrentTime] = useState("");
   const [message, setMessage] = useState("");
@@ -360,5 +360,20 @@ export default function ConversationPage() {
         </div>
       </nav>
     </div>
+  );
+}
+
+export default function ConversationPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FFDD00] mx-auto"></div>
+          <p className="mt-4 text-gray-600">Carregando conversa...</p>
+        </div>
+      </div>
+    }>
+      <ConversationContent />
+    </Suspense>
   );
 }

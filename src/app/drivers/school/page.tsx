@@ -230,7 +230,10 @@ export default function DriversManagement() {
   });
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: "#F8F8F5" }}>
+    <div
+      className="min-h-screen overflow-x-hidden"
+      style={{ backgroundColor: "#F8F8F5" }}
+    >
       {/* Header */}
       <header className="bg-[#FFDD00] px-4 py-4 shadow-sm border-b border-[#E6C700]">
         <div className="flex items-center">
@@ -375,75 +378,79 @@ export default function DriversManagement() {
                   key={driver.id}
                   className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors"
                 >
-                  <div className="flex items-start justify-between mb-3">
+                  <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
                     <div className="flex-1">
                       <div className="flex items-center space-x-3 mb-2">
-                        <div className="w-10 h-10 bg-[#FFDD00] rounded-full flex items-center justify-center">
+                        <div className="w-10 h-10 bg-[#FFDD00] rounded-full flex items-center justify-center flex-shrink-0">
                           <UserCheck className="w-5 h-5 text-black" />
                         </div>
-                        <div className="flex-1">
-                          <h3 className="font-medium text-gray-900">
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-medium text-gray-900 truncate">
                             {driver.name}
                           </h3>
                         </div>
-                        <button
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            toggleDriverStatus(driver.id);
-                          }}
-                          className={`relative inline-flex h-7 w-12 items-center rounded-full shadow-inner transition-colors focus:outline-none focus:ring-2 focus:ring-[#FFDD00] focus:ring-offset-2 cursor-pointer border-2 ${
-                            driver.status === "ativo"
-                              ? "bg-green-500 border-green-600"
-                              : "bg-gray-300 border-gray-400"
-                          }`}
-                        >
-                          <span
-                            className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-md transition-transform border border-gray-300 ${
+                        <div className="flex items-center space-x-2 flex-shrink-0">
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              toggleDriverStatus(driver.id);
+                            }}
+                            className={`relative inline-flex h-7 w-12 items-center rounded-full shadow-inner transition-colors focus:outline-none focus:ring-2 focus:ring-[#FFDD00] focus:ring-offset-2 cursor-pointer border-2 ${
                               driver.status === "ativo"
-                                ? "translate-x-6"
-                                : "translate-x-1"
+                                ? "bg-green-500 border-green-600"
+                                : "bg-gray-300 border-gray-400"
                             }`}
-                          />
-                        </button>
-                        <span className="text-xs text-gray-600 min-w-[60px]">
-                          {getStatusText(driver.status)}
-                        </span>
+                          >
+                            <span
+                              className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-md transition-transform border border-gray-300 ${
+                                driver.status === "ativo"
+                                  ? "translate-x-6"
+                                  : "translate-x-1"
+                              }`}
+                            />
+                          </button>
+                          <span className="text-xs text-gray-600 whitespace-nowrap">
+                            {getStatusText(driver.status)}
+                          </span>
+                        </div>
                       </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600 mb-3">
                         <div className="space-y-1">
                           <div className="flex items-center space-x-2">
-                            <Phone className="w-4 h-4" />
-                            <span>{driver.phone}</span>
+                            <Phone className="w-4 h-4 flex-shrink-0" />
+                            <span className="truncate">{driver.phone}</span>
                           </div>
                           <div className="flex items-center space-x-2">
-                            <Mail className="w-4 h-4" />
-                            <span>{driver.email}</span>
+                            <Mail className="w-4 h-4 flex-shrink-0" />
+                            <span className="truncate">{driver.email}</span>
                           </div>
                         </div>
 
                         <div className="space-y-1">
                           <div className="flex items-center space-x-2">
-                            <Users className="w-4 h-4" />
+                            <Users className="w-4 h-4 flex-shrink-0" />
                             <span>Alunos: {driver.studentsAssigned}</span>
                           </div>
                         </div>
 
                         <div className="space-y-1">
                           <div className="flex items-center space-x-2">
-                            <Bus className="w-4 h-4" />
-                            <span>Veículo: {driver.vehicle}</span>
+                            <Bus className="w-4 h-4 flex-shrink-0" />
+                            <span className="truncate">
+                              Veículo: {driver.vehicle}
+                            </span>
                           </div>
                         </div>
                       </div>
                     </div>
 
-                    <div className="flex flex-col space-y-2 ml-4">
+                    <div className="flex flex-row md:flex-col gap-2 w-full md:w-auto">
                       <Button
                         variant="outline"
                         size="sm"
-                        className="border-gray-300 text-gray-700 hover:bg-gray-50 cursor-pointer"
+                        className="flex-1 md:flex-none border-gray-300 text-gray-700 hover:bg-gray-50 cursor-pointer"
                       >
                         <Eye className="w-4 h-4 mr-1" />
                         Ver Perfil
@@ -451,7 +458,7 @@ export default function DriversManagement() {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="border-gray-300 text-gray-700 hover:bg-gray-50 cursor-pointer"
+                        className="flex-1 md:flex-none border-gray-300 text-gray-700 hover:bg-gray-50 cursor-pointer"
                       >
                         <Route className="w-4 h-4 mr-1" />
                         Rotas
@@ -460,7 +467,7 @@ export default function DriversManagement() {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="border-red-300 text-red-700 hover:bg-red-50 cursor-pointer"
+                        className="flex-1 md:flex-none border-red-300 text-red-700 hover:bg-red-50 cursor-pointer"
                       >
                         <Trash2 className="w-4 h-4 mr-1" />
                         Excluir

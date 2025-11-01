@@ -211,17 +211,19 @@ export default function SchoolDashboard() {
                 </div>
                 <span className="text-sm text-gray-700">Rotas</span>
               </Button>
-              <Button
-                variant="outline"
-                className="h-20 flex flex-col items-center justify-center space-y-2 border-gray-300 hover:bg-gray-50 cursor-pointer"
-              >
-                <div className="w-12 h-12 bg-[#FFDD00] rounded-full flex items-center justify-center border-2 border-black">
-                  <Bus className="w-7 h-7 text-black" />
-                </div>
-                <span className="text-sm text-gray-700">
-                  Gerenciar Motoristas
-                </span>
-              </Button>
+              <Link href="/drivers/school" className="w-full">
+                <Button
+                  variant="outline"
+                  className="w-full h-20 flex flex-col items-center justify-center space-y-2 border-gray-300 hover:bg-gray-50 cursor-pointer"
+                >
+                  <div className="w-12 h-12 bg-[#FFDD00] rounded-full flex items-center justify-center border-2 border-black">
+                    <Bus className="w-7 h-7 text-black" />
+                  </div>
+                  <span className="text-sm text-gray-700">
+                    Gerenciar Motoristas
+                  </span>
+                </Button>
+              </Link>
               <Button
                 variant="outline"
                 className="h-20 flex flex-col items-center justify-center space-y-2 border-gray-300 hover:bg-gray-50 cursor-pointer"

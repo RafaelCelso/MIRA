@@ -38,6 +38,8 @@ export default function DriversManagement() {
   const [selectedFilter, setSelectedFilter] = useState("todos");
   const [showDriversModal, setShowDriversModal] = useState(false);
   const [modalSearchTerm, setModalSearchTerm] = useState("");
+  const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
+  const [driverToDelete, setDriverToDelete] = useState<number | null>(null);
 
   // Dados dos motoristas
   const [drivers, setDrivers] = useState([
@@ -144,11 +146,11 @@ export default function DriversManagement() {
     totalDrivers: drivers.length,
     activeDrivers: drivers.filter((d) => d.status === "ativo").length,
     inactiveDrivers: drivers.filter((d) => d.status === "inativo").length,
-    documentsExpiring: drivers.filter(
-      (d) =>
-        Object.values(d.documents).includes("vencendo") ||
-        Object.values(d.documents).includes("vencido")
-    ).length,
+    totalRoutes: [
+      ...new Set(
+        drivers.map((d) => d.currentRoute).filter((route) => route !== "-")
+      ),
+    ].length,
     totalStudentsAssigned: drivers.reduce(
       (sum, driver) => sum + driver.studentsAssigned,
       0
@@ -176,6 +178,14 @@ export default function DriversManagement() {
           : driver
       )
     );
+  };
+
+  const handleDeleteDriver = () => {
+    if (driverToDelete) {
+      setDrivers(drivers.filter((d) => d.id !== driverToDelete));
+      setShowDeleteConfirmModal(false);
+      setDriverToDelete(null);
+    }
   };
 
   const getDocumentStatus = (document: string) => {
@@ -311,13 +321,13 @@ export default function DriversManagement() {
           <Card className="bg-white shadow-sm border border-gray-200">
             <CardContent className="p-4">
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-                  <AlertTriangle className="w-5 h-5 text-red-600" />
+                <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                  <Route className="w-5 h-5 text-purple-600" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Docs. Vencendo</p>
+                  <p className="text-sm text-gray-600">Total de Rotas</p>
                   <p className="text-xl font-bold text-gray-900">
-                    {stats.documentsExpiring}
+                    {stats.totalRoutes}
                   </p>
                 </div>
               </div>
@@ -447,27 +457,34 @@ export default function DriversManagement() {
                     </div>
 
                     <div className="flex flex-row md:flex-col gap-2 w-full md:w-auto">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="flex-1 md:flex-none border-gray-300 text-gray-700 hover:bg-gray-50 cursor-pointer"
-                      >
-                        <Eye className="w-4 h-4 mr-1" />
-                        Ver Perfil
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="flex-1 md:flex-none border-gray-300 text-gray-700 hover:bg-gray-50 cursor-pointer"
-                      >
-                        <Route className="w-4 h-4 mr-1" />
-                        Rotas
-                      </Button>
-
+                      <Link href={`/profile/driver/${driver.id}`}>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="flex-1 md:flex-none border-gray-300 text-gray-700 hover:bg-gray-50 cursor-pointer w-full"
+                        >
+                          <Eye className="w-4 h-4 mr-1" />
+                          Ver Perfil
+                        </Button>
+                      </Link>
+                      <Link href={`/routes/school?driverId=${driver.id}`}>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="flex-1 md:flex-none border-gray-300 text-gray-700 hover:bg-gray-50 cursor-pointer w-full"
+                        >
+                          <Route className="w-4 h-4 mr-1" />
+                          Rotas
+                        </Button>
+                      </Link>
                       <Button
                         variant="outline"
                         size="sm"
                         className="flex-1 md:flex-none border-red-300 text-red-700 hover:bg-red-50 cursor-pointer"
+                        onClick={() => {
+                          setDriverToDelete(driver.id);
+                          setShowDeleteConfirmModal(true);
+                        }}
                       >
                         <Trash2 className="w-4 h-4 mr-1" />
                         Excluir
@@ -635,6 +652,61 @@ export default function DriversManagement() {
               >
                 Cancelar
               </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Confirmação de Exclusão */}
+      {showDeleteConfirmModal && (
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999] flex items-center justify-center p-4"
+          onClick={() => {
+            setShowDeleteConfirmModal(false);
+            setDriverToDelete(null);
+          }}
+        >
+          <div
+            className="bg-white rounded-2xl shadow-2xl w-full max-w-sm"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Conteúdo do Modal */}
+            <div className="p-6 text-center">
+              {/* Ícone de Alerta */}
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <AlertTriangle className="w-8 h-8 text-red-600" />
+              </div>
+
+              {/* Título */}
+              <h3 className="text-lg font-bold text-gray-900 mb-2">
+                Excluir Motorista
+              </h3>
+
+              {/* Mensagem */}
+              <p className="text-sm text-gray-600 mb-6">
+                Tem certeza que deseja excluir este motorista? Esta ação não
+                pode ser desfeita.
+              </p>
+
+              {/* Botões */}
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowDeleteConfirmModal(false);
+                    setDriverToDelete(null);
+                  }}
+                  className="flex-1 border-gray-300 text-gray-700 hover:bg-gray-50 cursor-pointer"
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  onClick={handleDeleteDriver}
+                  className="flex-1 bg-red-500 hover:bg-red-600 text-white font-semibold cursor-pointer"
+                >
+                  Excluir
+                </Button>
+              </div>
             </div>
           </div>
         </div>

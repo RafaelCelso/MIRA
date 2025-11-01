@@ -290,37 +290,6 @@ export default function SchoolProfile() {
           </span>
         </div>
 
-        {/* Statistics Cards */}
-        <div className="grid grid-cols-3 gap-4 mb-6">
-          <Card className="bg-gradient-to-br from-blue-500 to-blue-700 border-0 shadow-lg">
-            <CardContent className="p-4 text-center">
-              <Users className="w-8 h-8 text-white mx-auto mb-2" />
-              <p className="text-2xl font-bold text-white">
-                {profileData.totalStudents}
-              </p>
-              <p className="text-xs text-blue-100">Alunos</p>
-            </CardContent>
-          </Card>
-          <Card className="bg-gradient-to-br from-purple-500 to-purple-700 border-0 shadow-lg">
-            <CardContent className="p-4 text-center">
-              <Bus className="w-8 h-8 text-white mx-auto mb-2" />
-              <p className="text-2xl font-bold text-white">
-                {profileData.totalRoutes}
-              </p>
-              <p className="text-xs text-purple-100">Rotas</p>
-            </CardContent>
-          </Card>
-          <Card className="bg-gradient-to-br from-green-500 to-green-700 border-0 shadow-lg">
-            <CardContent className="p-4 text-center">
-              <Users className="w-8 h-8 text-white mx-auto mb-2" />
-              <p className="text-2xl font-bold text-white">
-                {profileData.totalDrivers}
-              </p>
-              <p className="text-xs text-green-100">Motoristas</p>
-            </CardContent>
-          </Card>
-        </div>
-
         <section>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-bold text-gray-900">

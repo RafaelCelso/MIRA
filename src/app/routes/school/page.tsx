@@ -223,7 +223,7 @@ export default function RoutesManagement() {
     const route = routes.find((r) => r.id === routeId);
     if (route) {
       setEditingRouteId(routeId);
-      setRouteType(route.type);
+      setRouteType(route.type as "IDA" | "VOLTA");
       setSelectedStudents([...route.students]);
       setRouteTime(route.time);
       setShowEditRouteModal(true);

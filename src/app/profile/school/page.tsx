@@ -20,15 +20,21 @@ import {
   MapPin,
   Building,
   X,
+  CheckCircle,
+  Save,
+  Eye,
+  EyeOff,
+  Check,
+  User,
 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 export default function SchoolProfile() {
-  const [isScrolled, setIsScrolled] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [showPasswordFields, setShowPasswordFields] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   // Estados para edição de perfil
   const [profileData, setProfileData] = useState({
@@ -36,14 +42,22 @@ export default function SchoolProfile() {
     cnpj: "12.345.678/0001-90",
     email: "contato@colegiosanjose.edu.br",
     phone: "(11) 3456-7890",
-    address: "Av. Brigadeiro Faria Lima, 456 - Itaim Bibi",
+    nomeResponsavel: "João Silva",
+    cep: "01452-000",
+    rua: "Av. Brigadeiro Faria Lima",
+    numero: "456",
+    semNumero: false,
+    complemento: "",
+    bairro: "Itaim Bibi",
     city: "São Paulo",
     state: "SP",
-    cep: "01452-000",
     totalStudents: 1247,
     totalRoutes: 12,
     totalDrivers: 15,
   });
+
+  // Estado temporário para edição no modal
+  const [tempProfileData, setTempProfileData] = useState(profileData);
 
   // Estados para alteração de senha
   const [passwordData, setPasswordData] = useState({
@@ -60,60 +74,101 @@ export default function SchoolProfile() {
   });
 
   const handleSaveProfile = () => {
-    console.log("Salvando perfil:", profileData);
+    // Só atualiza quando clicar em salvar
+    setProfileData(tempProfileData);
     setShowEditModal(false);
+    setShowSuccessModal(true);
+  };
+
+  const handleOpenEditModal = () => {
+    // Ao abrir o modal, copia os dados atuais para o estado temporário
+    setTempProfileData(profileData);
+    setShowEditModal(true);
+  };
+
+  // Função para limpar erro específico quando o usuário digita
+  const clearPasswordError = (field: string) => {
+    if (passwordErrors[field as keyof typeof passwordErrors]) {
+      setPasswordErrors((prev) => ({
+        ...prev,
+        [field]: "",
+      }));
+    }
+  };
+
+  // Função para validar requisitos da senha em tempo real
+  const validatePasswordRequirements = (password: string) => {
+    return {
+      minLength: password.length >= 8,
+      hasUppercase: /[A-Z]/.test(password),
+      hasLowercase: /[a-z]/.test(password),
+      hasNumber: /\d/.test(password),
+    };
   };
 
   const handleChangePassword = () => {
-    // Resetar erros
+    // Limpar erros anteriores
     setPasswordErrors({
       currentPassword: "",
       newPassword: "",
       confirmPassword: "",
     });
 
-    // Validação básica
+    let hasErrors = false;
+    const newErrors = {
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+    };
+
+    // Validar senha atual
     if (!passwordData.currentPassword) {
-      setPasswordErrors((prev) => ({
-        ...prev,
-        currentPassword: "Campo obrigatório",
-      }));
-      return;
+      newErrors.currentPassword = "Senha atual é obrigatória";
+      hasErrors = true;
     }
 
+    // Validar nova senha
     if (!passwordData.newPassword) {
-      setPasswordErrors((prev) => ({
-        ...prev,
-        newPassword: "Campo obrigatório",
-      }));
-      return;
+      newErrors.newPassword = "Nova senha é obrigatória";
+      hasErrors = true;
+    } else if (passwordData.newPassword.length < 8) {
+      newErrors.newPassword = "A senha deve ter pelo menos 8 caracteres";
+      hasErrors = true;
+    } else if (
+      !/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(passwordData.newPassword)
+    ) {
+      newErrors.newPassword =
+        "A senha deve conter ao menos uma letra maiúscula, uma minúscula e um número";
+      hasErrors = true;
     }
 
-    if (passwordData.newPassword.length < 8) {
-      setPasswordErrors((prev) => ({
-        ...prev,
-        newPassword: "A senha deve ter pelo menos 8 caracteres",
-      }));
-      return;
+    // Validar confirmação de senha
+    if (!passwordData.confirmPassword) {
+      newErrors.confirmPassword = "Confirmação de senha é obrigatória";
+      hasErrors = true;
+    } else if (passwordData.newPassword !== passwordData.confirmPassword) {
+      newErrors.confirmPassword = "As senhas não coincidem";
+      hasErrors = true;
     }
 
-    if (passwordData.newPassword !== passwordData.confirmPassword) {
-      setPasswordErrors((prev) => ({
-        ...prev,
-        confirmPassword: "As senhas não coincidem",
-      }));
+    if (hasErrors) {
+      setPasswordErrors(newErrors);
       return;
     }
 
     // Aqui seria a integração com a API para alterar a senha
-    console.log("Alterando senha...");
-    setShowPasswordModal(false);
+    console.log("Alterando senha");
     setPasswordData({
       currentPassword: "",
       newPassword: "",
       confirmPassword: "",
     });
-    alert("Senha alterada com sucesso!");
+    setPasswordErrors({
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+    });
+    setShowPasswordModal(false);
   };
 
   const handleLogout = () => {
@@ -121,16 +176,6 @@ export default function SchoolProfile() {
     // Aqui seria a integração com a API de logout
     window.location.href = "/login";
   };
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollTop = window.scrollY;
-      setIsScrolled(scrollTop > 0);
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   const formatCNPJ = (value: string) => {
     const numbers = value.replace(/\D/g, "");
@@ -162,29 +207,68 @@ export default function SchoolProfile() {
     return value;
   };
 
+  // Função para permitir apenas números
+  const formatNumbers = (value: string) => {
+    return value.replace(/\D/g, "");
+  };
+
+  // Função para lidar com o checkbox "Sem número"
+  const handleSemNumeroChange = (checked: boolean) => {
+    setTempProfileData({
+      ...tempProfileData,
+      semNumero: checked,
+      numero: checked ? "S/N" : "",
+    });
+  };
+
+  // Função para buscar endereço pelo CEP
+  const buscarCEP = async () => {
+    const cep = tempProfileData.cep.replace(/\D/g, "");
+
+    if (cep.length !== 8) {
+      alert("CEP deve ter 8 dígitos");
+      return;
+    }
+
+    try {
+      const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+      const data = await response.json();
+
+      if (data.erro) {
+        alert("CEP não encontrado");
+        return;
+      }
+
+      // Preenche os campos automaticamente
+      setTempProfileData({
+        ...tempProfileData,
+        rua: data.logradouro || "",
+        bairro: data.bairro || "",
+        city: data.localidade || "",
+        state: data.uf || "",
+      });
+    } catch (error) {
+      console.error("Erro ao buscar CEP:", error);
+      alert("Erro ao buscar CEP. Tente novamente.");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header
-        className={`fixed top-0 left-0 right-0 z-10 transition-shadow duration-300 ${
-          isScrolled ? "shadow-md bg-white" : "bg-[#FFDD00]"
-        }`}
-      >
-        <div className="flex items-center justify-between px-4 py-3">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center shadow-md">
-              <School className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <h1 className="text-lg font-bold text-black">Perfil da Escola</h1>
-              <p className="text-xs text-black/70">Configurações e informações</p>
-            </div>
-          </div>
+      <header className="bg-[#FFDD00] px-4 py-4 shadow-sm border-b border-[#E6C700]">
+        <div className="flex items-center">
+          <Image
+            src="/images/Simplificado 1.webp"
+            alt="MIRA Logo"
+            width={100}
+            height={32}
+          />
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="pt-20 p-4 space-y-6">
+      <main className="p-4 space-y-6">
         {/* Profile Header */}
         <div className="text-center mb-8">
           <div className="relative inline-block mb-4">
@@ -193,7 +277,7 @@ export default function SchoolProfile() {
             </div>
             <Button
               size="sm"
-              className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-[#FFDD00] hover:bg-[#E6C700] text-black border-2 border-white shadow-lg p-0"
+              className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-[#FFDD00] hover:bg-[#E6C700] text-black border-2 border-white shadow-lg p-0 cursor-pointer"
             >
               <Camera className="w-4 h-4" />
             </Button>
@@ -243,7 +327,7 @@ export default function SchoolProfile() {
               Informações da Escola
             </h2>
             <Button
-              onClick={() => setShowEditModal(true)}
+              onClick={handleOpenEditModal}
               variant="outline"
               size="sm"
               className="border-gray-300 text-gray-700 hover:bg-gray-50 cursor-pointer"
@@ -268,12 +352,26 @@ export default function SchoolProfile() {
               </div>
 
               <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                  <Users className="w-5 h-5 text-purple-600" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm text-gray-500">Nome do Responsável</p>
+                  <p className="font-medium text-gray-900">
+                    {profileData.nomeResponsavel}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
                   <Shield className="w-5 h-5 text-green-600" />
                 </div>
                 <div className="flex-1">
                   <p className="text-sm text-gray-500">CNPJ</p>
-                  <p className="font-medium text-gray-900">{profileData.cnpj}</p>
+                  <p className="font-medium text-gray-900">
+                    {profileData.cnpj}
+                  </p>
                 </div>
               </div>
 
@@ -294,7 +392,7 @@ export default function SchoolProfile() {
                   <Phone className="w-5 h-5 text-gray-600" />
                 </div>
                 <div className="flex-1">
-                  <p className="text-sm text-gray-500">Telefone</p>
+                  <p className="text-sm text-gray-500">Telefone de Contato</p>
                   <p className="font-medium text-gray-900">
                     {profileData.phone}
                   </p>
@@ -308,10 +406,12 @@ export default function SchoolProfile() {
                 <div className="flex-1">
                   <p className="text-sm text-gray-500">Endereço</p>
                   <p className="font-medium text-gray-900">
-                    {profileData.address}
+                    {profileData.rua}, {profileData.numero}
+                    {profileData.complemento && ` - ${profileData.complemento}`}
                   </p>
                   <p className="text-sm text-gray-500">
-                    {profileData.city} - {profileData.state}
+                    {profileData.bairro} - {profileData.city}/
+                    {profileData.state}
                   </p>
                 </div>
               </div>
@@ -460,7 +560,7 @@ export default function SchoolProfile() {
             variant="ghost"
             className="flex flex-col items-center space-y-0.5 p-2 cursor-pointer"
           >
-            <Settings className="w-5 h-5 text-yellow-500" />
+            <User className="w-5 h-5 text-yellow-500" />
             <span className="text-xs text-yellow-500 font-medium">Perfil</span>
           </Button>
         </div>
@@ -498,9 +598,29 @@ export default function SchoolProfile() {
                 </label>
                 <input
                   type="text"
-                  value={profileData.name}
+                  value={tempProfileData.name}
                   onChange={(e) =>
-                    setProfileData({ ...profileData, name: e.target.value })
+                    setTempProfileData({
+                      ...tempProfileData,
+                      name: e.target.value,
+                    })
+                  }
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FFDD00] focus:border-transparent"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Nome do Responsável
+                </label>
+                <input
+                  type="text"
+                  value={tempProfileData.nomeResponsavel}
+                  onChange={(e) =>
+                    setTempProfileData({
+                      ...tempProfileData,
+                      nomeResponsavel: e.target.value,
+                    })
                   }
                   className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FFDD00] focus:border-transparent"
                 />
@@ -512,10 +632,10 @@ export default function SchoolProfile() {
                 </label>
                 <input
                   type="text"
-                  value={profileData.cnpj}
+                  value={tempProfileData.cnpj}
                   onChange={(e) =>
-                    setProfileData({
-                      ...profileData,
+                    setTempProfileData({
+                      ...tempProfileData,
                       cnpj: formatCNPJ(e.target.value),
                     })
                   }
@@ -529,9 +649,12 @@ export default function SchoolProfile() {
                 </label>
                 <input
                   type="email"
-                  value={profileData.email}
+                  value={tempProfileData.email}
                   onChange={(e) =>
-                    setProfileData({ ...profileData, email: e.target.value })
+                    setTempProfileData({
+                      ...tempProfileData,
+                      email: e.target.value,
+                    })
                   }
                   className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FFDD00] focus:border-transparent"
                 />
@@ -539,14 +662,14 @@ export default function SchoolProfile() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Telefone
+                  Telefone de Contato
                 </label>
                 <input
                   type="text"
-                  value={profileData.phone}
+                  value={tempProfileData.phone}
                   onChange={(e) =>
-                    setProfileData({
-                      ...profileData,
+                    setTempProfileData({
+                      ...tempProfileData,
                       phone: formatPhone(e.target.value),
                     })
                   }
@@ -554,63 +677,155 @@ export default function SchoolProfile() {
                 />
               </div>
 
+              <div className="flex gap-3">
+                <div className="flex-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    CEP
+                  </label>
+                  <input
+                    type="text"
+                    value={tempProfileData.cep}
+                    onChange={(e) =>
+                      setTempProfileData({
+                        ...tempProfileData,
+                        cep: formatCEP(e.target.value),
+                      })
+                    }
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FFDD00] focus:border-transparent"
+                  />
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={buscarCEP}
+                  className="mt-6 px-4 cursor-pointer"
+                >
+                  Buscar
+                </Button>
+              </div>
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  CEP
+                  Rua
                 </label>
                 <input
                   type="text"
-                  value={profileData.cep}
+                  value={tempProfileData.rua}
                   onChange={(e) =>
-                    setProfileData({
-                      ...profileData,
-                      cep: formatCEP(e.target.value),
+                    setTempProfileData({
+                      ...tempProfileData,
+                      rua: e.target.value,
                     })
                   }
                   className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FFDD00] focus:border-transparent"
                 />
               </div>
 
+              <div className="flex gap-3">
+                <div className="flex-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Número
+                  </label>
+                  <input
+                    type="text"
+                    value={tempProfileData.numero}
+                    onChange={(e) =>
+                      setTempProfileData({
+                        ...tempProfileData,
+                        numero: formatNumbers(e.target.value),
+                      })
+                    }
+                    disabled={tempProfileData.semNumero}
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FFDD00] focus:border-transparent"
+                  />
+                  <div className="mt-2">
+                    <label className="flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={tempProfileData.semNumero}
+                        onChange={(e) =>
+                          handleSemNumeroChange(e.target.checked)
+                        }
+                        className="mr-2 w-4 h-4 border-2 border-gray-300 rounded checked:bg-[#FFDD00] checked:border-black focus:ring-2 focus:ring-[#FFDD00] focus:ring-opacity-50"
+                      />
+                      <span className="text-sm text-gray-700">Sem número</span>
+                    </label>
+                  </div>
+                </div>
+                <div className="flex-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Complemento
+                  </label>
+                  <input
+                    type="text"
+                    value={tempProfileData.complemento}
+                    onChange={(e) =>
+                      setTempProfileData({
+                        ...tempProfileData,
+                        complemento: e.target.value,
+                      })
+                    }
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FFDD00] focus:border-transparent"
+                  />
+                </div>
+              </div>
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Endereço
+                  Bairro
                 </label>
                 <input
                   type="text"
-                  value={profileData.address}
+                  value={tempProfileData.bairro}
                   onChange={(e) =>
-                    setProfileData({ ...profileData, address: e.target.value })
+                    setTempProfileData({
+                      ...tempProfileData,
+                      bairro: e.target.value,
+                    })
                   }
                   className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FFDD00] focus:border-transparent"
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
+              <div className="flex gap-3">
+                <div className="flex-1">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Cidade
                   </label>
                   <input
                     type="text"
-                    value={profileData.city}
+                    value={tempProfileData.city}
                     onChange={(e) =>
-                      setProfileData({ ...profileData, city: e.target.value })
+                      setTempProfileData({
+                        ...tempProfileData,
+                        city: e.target.value,
+                      })
                     }
                     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FFDD00] focus:border-transparent"
                   />
                 </div>
-                <div>
+                <div className="flex-1">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Estado
                   </label>
-                  <input
-                    type="text"
-                    value={profileData.state}
+                  <select
+                    value={tempProfileData.state}
                     onChange={(e) =>
-                      setProfileData({ ...profileData, state: e.target.value })
+                      setTempProfileData({
+                        ...tempProfileData,
+                        state: e.target.value,
+                      })
                     }
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FFDD00] focus:border-transparent"
-                  />
+                    className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FFDD00] focus:border-transparent cursor-pointer"
+                  >
+                    <option value="">UF</option>
+                    <option value="SP">SP</option>
+                    <option value="RJ">RJ</option>
+                    <option value="MG">MG</option>
+                    <option value="RS">RS</option>
+                    <option value="PR">PR</option>
+                    <option value="SC">SC</option>
+                  </select>
                 </div>
               </div>
             </div>
@@ -640,10 +855,11 @@ export default function SchoolProfile() {
           onClick={() => setShowPasswordModal(false)}
         >
           <div
-            className="bg-white rounded-2xl shadow-2xl w-full max-w-md"
+            className="bg-white rounded-3xl shadow-2xl w-full max-w-md"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="bg-[#FFDD00] px-6 py-4 flex items-center justify-between">
+            {/* Header do Modal */}
+            <div className="bg-[#FFDD00] px-6 py-4 flex items-center justify-between rounded-t-3xl">
               <h3 className="text-lg font-bold text-black">Alterar Senha</h3>
               <Button
                 variant="ghost"
@@ -654,24 +870,46 @@ export default function SchoolProfile() {
                 <X className="w-5 h-5 text-black" />
               </Button>
             </div>
+
+            {/* Conteúdo do Modal */}
             <div className="p-6 space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Senha Atual
                 </label>
-                <input
-                  type={showPasswordFields ? "text" : "password"}
-                  value={passwordData.currentPassword}
-                  onChange={(e) =>
-                    setPasswordData({
-                      ...passwordData,
-                      currentPassword: e.target.value,
-                    })
-                  }
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FFDD00] focus:border-transparent"
-                />
+                <div className="relative">
+                  <input
+                    type={showPasswordFields ? "text" : "password"}
+                    value={passwordData.currentPassword}
+                    onChange={(e) => {
+                      setPasswordData({
+                        ...passwordData,
+                        currentPassword: e.target.value,
+                      });
+                      clearPasswordError("currentPassword");
+                    }}
+                    className={`w-full p-3 pr-10 border rounded-lg focus:ring-2 focus:ring-[#FFDD00] focus:border-transparent ${
+                      passwordErrors.currentPassword
+                        ? "border-red-500"
+                        : "border-gray-300"
+                    }`}
+                    placeholder="Digite sua senha atual"
+                  />
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowPasswordFields(!showPasswordFields)}
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1"
+                  >
+                    {showPasswordFields ? (
+                      <EyeOff className="w-4 h-4" />
+                    ) : (
+                      <Eye className="w-4 h-4" />
+                    )}
+                  </Button>
+                </div>
                 {passwordErrors.currentPassword && (
-                  <p className="text-sm text-red-600 mt-1">
+                  <p className="text-red-500 text-sm mt-1">
                     {passwordErrors.currentPassword}
                   </p>
                 )}
@@ -684,16 +922,22 @@ export default function SchoolProfile() {
                 <input
                   type={showPasswordFields ? "text" : "password"}
                   value={passwordData.newPassword}
-                  onChange={(e) =>
+                  onChange={(e) => {
                     setPasswordData({
                       ...passwordData,
                       newPassword: e.target.value,
-                    })
-                  }
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FFDD00] focus:border-transparent"
+                    });
+                    clearPasswordError("newPassword");
+                  }}
+                  className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-[#FFDD00] focus:border-transparent ${
+                    passwordErrors.newPassword
+                      ? "border-red-500"
+                      : "border-gray-300"
+                  }`}
+                  placeholder="Digite a nova senha"
                 />
                 {passwordErrors.newPassword && (
-                  <p className="text-sm text-red-600 mt-1">
+                  <p className="text-red-500 text-sm mt-1">
                     {passwordErrors.newPassword}
                   </p>
                 )}
@@ -706,44 +950,122 @@ export default function SchoolProfile() {
                 <input
                   type={showPasswordFields ? "text" : "password"}
                   value={passwordData.confirmPassword}
-                  onChange={(e) =>
+                  onChange={(e) => {
                     setPasswordData({
                       ...passwordData,
                       confirmPassword: e.target.value,
-                    })
-                  }
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FFDD00] focus:border-transparent"
+                    });
+                    clearPasswordError("confirmPassword");
+                  }}
+                  className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-[#FFDD00] focus:border-transparent ${
+                    passwordErrors.confirmPassword
+                      ? "border-red-500"
+                      : "border-gray-300"
+                  }`}
+                  placeholder="Confirme a nova senha"
                 />
                 {passwordErrors.confirmPassword && (
-                  <p className="text-sm text-red-600 mt-1">
+                  <p className="text-red-500 text-sm mt-1">
                     {passwordErrors.confirmPassword}
                   </p>
                 )}
               </div>
 
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  checked={showPasswordFields}
-                  onChange={(e) => setShowPasswordFields(e.target.checked)}
-                  className="mr-2"
-                />
-                <label className="text-sm text-gray-700">Mostrar senhas</label>
+              {/* Requisitos da senha */}
+              <div className="bg-gray-50 rounded-lg p-3">
+                <p className="text-xs text-gray-600 mb-2">
+                  A senha deve conter:
+                </p>
+                <ul className="text-xs space-y-1">
+                  {(() => {
+                    const requirements = validatePasswordRequirements(
+                      passwordData.newPassword
+                    );
+                    return (
+                      <>
+                        <li
+                          className={`flex items-center gap-2 ${
+                            requirements.minLength
+                              ? "text-green-600"
+                              : "text-gray-500"
+                          }`}
+                        >
+                          {requirements.minLength ? (
+                            <Check className="w-3 h-3" />
+                          ) : (
+                            <span className="w-3 h-3 text-center">•</span>
+                          )}
+                          Pelo menos 8 caracteres
+                        </li>
+                        <li
+                          className={`flex items-center gap-2 ${
+                            requirements.hasUppercase
+                              ? "text-green-600"
+                              : "text-gray-500"
+                          }`}
+                        >
+                          {requirements.hasUppercase ? (
+                            <Check className="w-3 h-3" />
+                          ) : (
+                            <span className="w-3 h-3 text-center">•</span>
+                          )}
+                          Uma letra maiúscula
+                        </li>
+                        <li
+                          className={`flex items-center gap-2 ${
+                            requirements.hasLowercase
+                              ? "text-green-600"
+                              : "text-gray-500"
+                          }`}
+                        >
+                          {requirements.hasLowercase ? (
+                            <Check className="w-3 h-3" />
+                          ) : (
+                            <span className="w-3 h-3 text-center">•</span>
+                          )}
+                          Uma letra minúscula
+                        </li>
+                        <li
+                          className={`flex items-center gap-2 ${
+                            requirements.hasNumber
+                              ? "text-green-600"
+                              : "text-gray-500"
+                          }`}
+                        >
+                          {requirements.hasNumber ? (
+                            <Check className="w-3 h-3" />
+                          ) : (
+                            <span className="w-3 h-3 text-center">•</span>
+                          )}
+                          Um número
+                        </li>
+                      </>
+                    );
+                  })()}
+                </ul>
               </div>
             </div>
-            <div className="bg-gray-50 px-6 py-4 flex justify-end space-x-3 border-t border-gray-200">
+
+            {/* Footer do Modal */}
+            <div className="bg-gray-50 px-6 py-4 border-t border-gray-200 flex gap-3 rounded-b-3xl">
               <Button
                 variant="outline"
                 onClick={() => setShowPasswordModal(false)}
-                className="border-gray-300 text-gray-700 hover:bg-gray-100 cursor-pointer"
+                className="flex-1 border-gray-300 text-gray-700 hover:bg-gray-50 cursor-pointer"
               >
                 Cancelar
               </Button>
               <Button
                 onClick={handleChangePassword}
-                className="bg-[#FFDD00] hover:bg-[#E6C700] text-black font-semibold cursor-pointer"
+                disabled={
+                  !passwordData.currentPassword ||
+                  !passwordData.newPassword ||
+                  !passwordData.confirmPassword
+                }
+                className="flex-1 bg-[#FFDD00] hover:bg-[#E6C700] text-black font-semibold disabled:opacity-50 cursor-pointer"
               >
-                Alterar Senha
+                <Save className="w-4 h-4 mr-2" />
+                Alterar
               </Button>
             </div>
           </div>
@@ -757,30 +1079,79 @@ export default function SchoolProfile() {
           onClick={() => setShowLogoutConfirm(false)}
         >
           <div
+            className="bg-white rounded-2xl shadow-2xl w-full max-w-sm"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Conteúdo do Modal */}
+            <div className="p-6 text-center">
+              {/* Ícone de Logout */}
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <LogOut className="w-8 h-8 text-red-600" />
+              </div>
+
+              {/* Título */}
+              <h3 className="text-lg font-bold text-gray-900 mb-2">
+                Sair da Conta
+              </h3>
+
+              {/* Mensagem */}
+              <p className="text-sm text-gray-600 mb-6">
+                Tem certeza que deseja sair da sua conta? Você precisará fazer
+                login novamente para acessar o aplicativo.
+              </p>
+
+              {/* Botões */}
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowLogoutConfirm(false)}
+                  className="flex-1 border-gray-300 text-gray-700 hover:bg-gray-50 cursor-pointer"
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  onClick={handleLogout}
+                  className="flex-1 bg-red-500 hover:bg-red-600 text-white font-semibold cursor-pointer"
+                >
+                  Sair
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Sucesso */}
+      {showSuccessModal && (
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          onClick={() => setShowSuccessModal(false)}
+        >
+          <div
             className="bg-white rounded-2xl shadow-2xl w-full max-w-md"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="bg-red-500 px-6 py-4">
-              <h3 className="text-lg font-bold text-white">Confirmar Logout</h3>
+            <div className="bg-[#FFDD00] px-6 py-4">
+              <h3 className="text-lg font-bold text-black">
+                Informações Atualizadas
+              </h3>
             </div>
             <div className="p-6">
-              <p className="text-gray-700 text-center mb-4">
-                Tem certeza que deseja sair da sua conta?
-              </p>
+              <div className="flex flex-col items-center justify-center mb-4">
+                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
+                  <CheckCircle className="w-10 h-10 text-green-600" />
+                </div>
+                <p className="text-gray-700 text-center text-lg font-medium">
+                  Suas informações foram atualizadas com sucesso!
+                </p>
+              </div>
             </div>
-            <div className="bg-gray-50 px-6 py-4 flex justify-end space-x-3 border-t border-gray-200">
+            <div className="bg-gray-50 px-6 py-4 flex justify-center border-t border-gray-200">
               <Button
-                variant="outline"
-                onClick={() => setShowLogoutConfirm(false)}
-                className="border-gray-300 text-gray-700 hover:bg-gray-100 cursor-pointer"
+                onClick={() => setShowSuccessModal(false)}
+                className="bg-[#FFDD00] hover:bg-[#E6C700] text-black font-semibold cursor-pointer"
               >
-                Cancelar
-              </Button>
-              <Button
-                onClick={handleLogout}
-                className="bg-red-600 hover:bg-red-700 text-white font-semibold cursor-pointer"
-              >
-                Sair
+                OK
               </Button>
             </div>
           </div>
@@ -789,4 +1160,3 @@ export default function SchoolProfile() {
     </div>
   );
 }
-

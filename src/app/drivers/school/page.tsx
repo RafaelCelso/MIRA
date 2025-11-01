@@ -27,15 +27,20 @@ import {
   FileText,
   Award,
   AlertTriangle,
+  User,
+  X,
+  Route,
 } from "lucide-react";
 import { useState } from "react";
 
 export default function DriversManagement() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("todos");
+  const [showDriversModal, setShowDriversModal] = useState(false);
+  const [modalSearchTerm, setModalSearchTerm] = useState("");
 
   // Dados dos motoristas
-  const drivers = [
+  const [drivers, setDrivers] = useState([
     {
       id: 1,
       name: "Carlos Santos",
@@ -132,7 +137,7 @@ export default function DriversManagement() {
         trainingCertificate: "válido",
       },
     },
-  ];
+  ]);
 
   // Estatísticas
   const stats = {
@@ -158,6 +163,19 @@ export default function DriversManagement() {
 
   const getStatusText = (status: string) => {
     return status === "ativo" ? "Ativo" : "Inativo";
+  };
+
+  const toggleDriverStatus = (driverId: number) => {
+    setDrivers((prevDrivers) =>
+      prevDrivers.map((driver) =>
+        driver.id === driverId
+          ? {
+              ...driver,
+              status: driver.status === "ativo" ? "inativo" : "ativo",
+            }
+          : driver
+      )
+    );
   };
 
   const getDocumentStatus = (document: string) => {
@@ -199,6 +217,16 @@ export default function DriversManagement() {
       selectedFilter === "todos" || driver.status === selectedFilter;
 
     return matchesSearch && matchesFilter;
+  });
+
+  // Filtro para motoristas no modal
+  const filteredModalDrivers = drivers.filter((driver) => {
+    const matchesModalSearch =
+      driver.name.toLowerCase().includes(modalSearchTerm.toLowerCase()) ||
+      driver.email.toLowerCase().includes(modalSearchTerm.toLowerCase()) ||
+      driver.phone.includes(modalSearchTerm);
+
+    return matchesModalSearch;
   });
 
   return (
@@ -310,7 +338,7 @@ export default function DriversManagement() {
               </div>
               <div className="flex gap-2">
                 <select
-                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FFDD00] focus:border-transparent"
+                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FFDD00] focus:border-transparent cursor-pointer"
                   value={selectedFilter}
                   onChange={(e) => setSelectedFilter(e.target.value)}
                 >
@@ -318,7 +346,13 @@ export default function DriversManagement() {
                   <option value="ativo">Apenas Ativos</option>
                   <option value="inativo">Apenas Inativos</option>
                 </select>
-                <Button className="bg-[#FFDD00] hover:bg-[#E6C700] text-black border-2 border-black">
+                <Button
+                  onClick={() => {
+                    setShowDriversModal(true);
+                    setModalSearchTerm("");
+                  }}
+                  className="bg-[#FFDD00] hover:bg-[#E6C700] text-black border-2 border-black cursor-pointer"
+                >
                   <Plus className="w-4 h-4 mr-2" />
                   Novo Motorista
                 </Button>
@@ -347,16 +381,32 @@ export default function DriversManagement() {
                         <div className="w-10 h-10 bg-[#FFDD00] rounded-full flex items-center justify-center">
                           <UserCheck className="w-5 h-5 text-black" />
                         </div>
-                        <div>
+                        <div className="flex-1">
                           <h3 className="font-medium text-gray-900">
                             {driver.name}
                           </h3>
                         </div>
-                        <span
-                          className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                            driver.status
-                          )}`}
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            toggleDriverStatus(driver.id);
+                          }}
+                          className={`relative inline-flex h-7 w-12 items-center rounded-full shadow-inner transition-colors focus:outline-none focus:ring-2 focus:ring-[#FFDD00] focus:ring-offset-2 cursor-pointer border-2 ${
+                            driver.status === "ativo"
+                              ? "bg-green-500 border-green-600"
+                              : "bg-gray-300 border-gray-400"
+                          }`}
                         >
+                          <span
+                            className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-md transition-transform border border-gray-300 ${
+                              driver.status === "ativo"
+                                ? "translate-x-6"
+                                : "translate-x-1"
+                            }`}
+                          />
+                        </button>
+                        <span className="text-xs text-gray-600 min-w-[60px]">
                           {getStatusText(driver.status)}
                         </span>
                       </div>
@@ -375,10 +425,6 @@ export default function DriversManagement() {
 
                         <div className="space-y-1">
                           <div className="flex items-center space-x-2">
-                            <Bus className="w-4 h-4" />
-                            <span>Rota: {driver.currentRoute}</span>
-                          </div>
-                          <div className="flex items-center space-x-2">
                             <Users className="w-4 h-4" />
                             <span>Alunos: {driver.studentsAssigned}</span>
                           </div>
@@ -386,7 +432,7 @@ export default function DriversManagement() {
 
                         <div className="space-y-1">
                           <div className="flex items-center space-x-2">
-                            <MapPin className="w-4 h-4" />
+                            <Bus className="w-4 h-4" />
                             <span>Veículo: {driver.vehicle}</span>
                           </div>
                         </div>
@@ -397,7 +443,7 @@ export default function DriversManagement() {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="border-gray-300 text-gray-700 hover:bg-gray-50"
+                        className="border-gray-300 text-gray-700 hover:bg-gray-50 cursor-pointer"
                       >
                         <Eye className="w-4 h-4 mr-1" />
                         Ver Perfil
@@ -405,16 +451,16 @@ export default function DriversManagement() {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="border-gray-300 text-gray-700 hover:bg-gray-50"
+                        className="border-gray-300 text-gray-700 hover:bg-gray-50 cursor-pointer"
                       >
-                        <Edit className="w-4 h-4 mr-1" />
-                        Editar
+                        <Route className="w-4 h-4 mr-1" />
+                        Rotas
                       </Button>
 
                       <Button
                         variant="outline"
                         size="sm"
-                        className="border-red-300 text-red-700 hover:bg-red-50"
+                        className="border-red-300 text-red-700 hover:bg-red-50 cursor-pointer"
                       >
                         <Trash2 className="w-4 h-4 mr-1" />
                         Excluir
@@ -472,7 +518,7 @@ export default function DriversManagement() {
               variant="ghost"
               className="flex flex-col items-center space-y-0.5 p-2 cursor-pointer"
             >
-              <Settings className="w-5 h-5 text-gray-400" />
+              <User className="w-5 h-5 text-gray-400" />
               <span className="text-xs text-gray-400">Perfil</span>
             </Button>
           </Link>
@@ -481,6 +527,111 @@ export default function DriversManagement() {
 
       {/* Padding bottom para compensar a navegação fixa */}
       <div className="h-20"></div>
+
+      {/* Modal de Lista de Motoristas */}
+      {showDriversModal && (
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          onClick={() => setShowDriversModal(false)}
+        >
+          <div
+            className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header do Modal */}
+            <div className="bg-[#FFDD00] px-6 py-4 flex items-center justify-between">
+              <h3 className="text-lg font-bold text-black">
+                Selecionar Motorista
+              </h3>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowDriversModal(false)}
+                className="p-1 hover:bg-black/10 rounded-full cursor-pointer"
+              >
+                <X className="w-5 h-5 text-black" />
+              </Button>
+            </div>
+
+            {/* Barra de Busca */}
+            <div className="p-6 border-b border-gray-200">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <input
+                  type="text"
+                  placeholder="Buscar por nome, email ou telefone..."
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FFDD00] focus:border-transparent"
+                  value={modalSearchTerm}
+                  onChange={(e) => setModalSearchTerm(e.target.value)}
+                />
+              </div>
+            </div>
+
+            {/* Lista de Motoristas */}
+            <div className="p-6 overflow-y-auto max-h-[60vh]">
+              {filteredModalDrivers.length === 0 ? (
+                <div className="text-center py-12">
+                  <Users className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                  <p className="text-gray-600">Nenhum motorista encontrado</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {filteredModalDrivers.map((driver) => (
+                    <Link
+                      href={`/profile/driver/${driver.id}`}
+                      key={driver.id}
+                      className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors cursor-pointer block"
+                    >
+                      <div className="flex items-start space-x-3">
+                        <div className="w-12 h-12 bg-[#FFDD00] rounded-full flex items-center justify-center flex-shrink-0">
+                          <UserCheck className="w-6 h-6 text-black" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-semibold text-gray-900 mb-2">
+                            {driver.name}
+                          </h4>
+                          <div className="flex flex-col gap-1">
+                            <div className="flex items-center space-x-2 text-sm text-gray-600">
+                              <Mail className="w-4 h-4 flex-shrink-0" />
+                              <span className="truncate">{driver.email}</span>
+                            </div>
+                            <div className="flex items-center space-x-2 text-sm text-gray-600">
+                              <Phone className="w-4 h-4 flex-shrink-0" />
+                              <span>{driver.phone}</span>
+                            </div>
+                          </div>
+                        </div>
+                        <Button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            // Aqui seria a lógica para adicionar o motorista
+                            console.log("Adicionar motorista:", driver.id);
+                          }}
+                          className="bg-[#FFDD00] hover:bg-[#E6C700] text-black border-2 border-black cursor-pointer whitespace-nowrap flex-shrink-0"
+                        >
+                          <Plus className="w-4 h-4 mr-2" />
+                          Adicionar
+                        </Button>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Footer do Modal */}
+            <div className="bg-gray-50 px-6 py-4 border-t border-gray-200 flex justify-end">
+              <Button
+                onClick={() => setShowDriversModal(false)}
+                className="bg-[#FFDD00] hover:bg-[#E6C700] text-black font-semibold cursor-pointer"
+              >
+                Cancelar
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

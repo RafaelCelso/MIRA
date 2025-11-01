@@ -22,6 +22,7 @@ import {
   Calendar,
   UserCheck,
   AlertCircle,
+  User,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -227,7 +228,7 @@ export default function StudentsManagement() {
               </div>
               <div className="flex gap-2">
                 <select
-                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FFDD00] focus:border-transparent"
+                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FFDD00] focus:border-transparent cursor-pointer"
                   value={selectedFilter}
                   onChange={(e) => setSelectedFilter(e.target.value)}
                 >
@@ -235,7 +236,7 @@ export default function StudentsManagement() {
                   <option value="ativo">Apenas Ativos</option>
                   <option value="inativo">Apenas Inativos</option>
                 </select>
-                <Button className="bg-[#FFDD00] hover:bg-[#E6C700] text-black border-2 border-black">
+                <Button className="bg-[#FFDD00] hover:bg-[#E6C700] text-black border-2 border-black cursor-pointer">
                   <Plus className="w-4 h-4 mr-2" />
                   Novo Aluno
                 </Button>
@@ -315,7 +316,7 @@ export default function StudentsManagement() {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="border-gray-300 text-gray-700 hover:bg-gray-50"
+                        className="border-gray-300 text-gray-700 hover:bg-gray-50 cursor-pointer"
                       >
                         <Eye className="w-4 h-4 mr-1" />
                         Ver
@@ -323,7 +324,7 @@ export default function StudentsManagement() {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="border-gray-300 text-gray-700 hover:bg-gray-50"
+                        className="border-gray-300 text-gray-700 hover:bg-gray-50 cursor-pointer"
                       >
                         <Edit className="w-4 h-4 mr-1" />
                         Editar
@@ -331,7 +332,7 @@ export default function StudentsManagement() {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="border-red-300 text-red-700 hover:bg-red-50"
+                        className="border-red-300 text-red-700 hover:bg-red-50 cursor-pointer"
                       >
                         <Trash2 className="w-4 h-4 mr-1" />
                         Excluir
@@ -387,7 +388,7 @@ export default function StudentsManagement() {
               variant="ghost"
               className="flex flex-col items-center space-y-0.5 p-2 cursor-pointer"
             >
-              <Settings className="w-5 h-5 text-gray-400" />
+              <User className="w-5 h-5 text-gray-400" />
               <span className="text-xs text-gray-400">Perfil</span>
             </Button>
           </Link>

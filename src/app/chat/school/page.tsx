@@ -9,6 +9,7 @@ import {
   Settings,
   Search,
   X,
+  User,
 } from "lucide-react";
 import { useState } from "react";
 import Link from "next/link";
@@ -347,7 +348,7 @@ export default function SchoolChatPage() {
               variant="ghost"
               className="flex flex-col items-center space-y-0.5 p-2 cursor-pointer"
             >
-              <Settings className="w-5 h-5 text-gray-400" />
+              <User className="w-5 h-5 text-gray-400" />
               <span className="text-xs text-gray-400">Perfil</span>
             </Button>
           </Link>

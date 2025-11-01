@@ -30,6 +30,7 @@ import {
   User,
   X,
   Route,
+  Check,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -40,6 +41,10 @@ export default function DriversManagement() {
   const [modalSearchTerm, setModalSearchTerm] = useState("");
   const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
   const [driverToDelete, setDriverToDelete] = useState<number | null>(null);
+  const [addingDriverId, setAddingDriverId] = useState<number | null>(null);
+  const [completedDriverId, setCompletedDriverId] = useState<number | null>(
+    null
+  );
 
   // Dados dos motoristas
   const [drivers, setDrivers] = useState([
@@ -186,6 +191,29 @@ export default function DriversManagement() {
       setShowDeleteConfirmModal(false);
       setDriverToDelete(null);
     }
+  };
+
+  const handleAddDriver = (driverToAdd: any) => {
+    // Ativar animação de loading
+    setAddingDriverId(driverToAdd.id);
+
+    // Após 400ms, mostrar animação de sucesso
+    setTimeout(() => {
+      setAddingDriverId(null);
+      setCompletedDriverId(driverToAdd.id);
+
+      // Após 300ms, adicionar o motorista e fechar o modal
+      setTimeout(() => {
+        // Aqui seria a lógica para adicionar o motorista à escola
+        console.log("Motorista adicionado:", driverToAdd.id);
+        // Fechar o modal
+        setShowDriversModal(false);
+        // Limpar a busca
+        setModalSearchTerm("");
+        // Resetar a animação
+        setCompletedDriverId(null);
+      }, 300);
+    }, 400);
   };
 
   const getDocumentStatus = (document: string) => {
@@ -629,13 +657,36 @@ export default function DriversManagement() {
                           onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
-                            // Aqui seria a lógica para adicionar o motorista
-                            console.log("Adicionar motorista:", driver.id);
+                            handleAddDriver(driver);
                           }}
-                          className="bg-[#FFDD00] hover:bg-[#E6C700] text-black border-2 border-black cursor-pointer whitespace-nowrap flex-shrink-0"
+                          disabled={
+                            addingDriverId === driver.id ||
+                            completedDriverId === driver.id
+                          }
+                          className={`${
+                            completedDriverId === driver.id
+                              ? "bg-green-500 hover:bg-green-500"
+                              : "bg-[#FFDD00] hover:bg-[#E6C700]"
+                          } text-black border-2 border-black cursor-pointer whitespace-nowrap flex-shrink-0 transition-all duration-300 transform ${
+                            completedDriverId === driver.id ? "scale-105" : ""
+                          }`}
                         >
-                          <Plus className="w-4 h-4 mr-2" />
-                          Adicionar
+                          {addingDriverId === driver.id ? (
+                            <>
+                              <div className="w-4 h-4 mr-2 border-2 border-black border-t-transparent rounded-full animate-spin" />
+                              Adicionando...
+                            </>
+                          ) : completedDriverId === driver.id ? (
+                            <>
+                              <Check className="w-4 h-4 mr-2" />
+                              Adicionado!
+                            </>
+                          ) : (
+                            <>
+                              <Plus className="w-4 h-4 mr-2" />
+                              Adicionar
+                            </>
+                          )}
                         </Button>
                       </div>
                     </Link>

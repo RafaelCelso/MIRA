@@ -30,6 +30,7 @@ import {
   QrCode,
   Download,
   Share2,
+  Check,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -42,6 +43,97 @@ export default function StudentsManagement() {
   const [selectedStudent, setSelectedStudent] = useState<any>(null);
   const [showEditStudentModal, setShowEditStudentModal] = useState(false);
   const [editingStudent, setEditingStudent] = useState<any>(null);
+  const [showAddStudentModal, setShowAddStudentModal] = useState(false);
+  const [modalSearchTerm, setModalSearchTerm] = useState("");
+  const [addingStudentId, setAddingStudentId] = useState<number | null>(null);
+  const [completedStudentId, setCompletedStudentId] = useState<number | null>(
+    null
+  );
+
+  // Lista geral de alunos disponíveis para adicionar (mock)
+  const [availableStudents] = useState([
+    {
+      id: 10,
+      name: "Isabella Martins",
+      grade: "6º Ano B",
+      periodo: "Manhã",
+      sexo: "Feminino",
+      idade: 11,
+      cuidadosEspeciais: "Nenhum",
+      relationship: "Mãe",
+      route: "-",
+      parent: "Juliana Martins",
+      phone: "(11) 98888-1111",
+      email: "juliana.martins@email.com",
+      address: "Rua Oscar Freire, 123 - Jardins",
+      cep: "01426-000",
+      rua: "Rua Oscar Freire",
+      numero: "123",
+      semNumero: false,
+      complemento: "",
+      bairro: "Jardins",
+      cidade: "São Paulo",
+      estado: "SP",
+      status: "ativo",
+      busNumber: "-",
+      pickupTime: "07:30",
+      dropoffTime: "17:45",
+    },
+    {
+      id: 11,
+      name: "Gabriel Lima",
+      grade: "4º Ano C",
+      periodo: "Tarde",
+      sexo: "Masculino",
+      idade: 9,
+      cuidadosEspeciais: "Nenhum",
+      relationship: "Pai",
+      route: "-",
+      parent: "Roberto Lima",
+      phone: "(11) 98888-2222",
+      email: "roberto.lima@email.com",
+      address: "Av. Faria Lima, 456 - Itaim Bibi",
+      cep: "04538-132",
+      rua: "Av. Faria Lima",
+      numero: "456",
+      semNumero: false,
+      complemento: "Conj. 501",
+      bairro: "Itaim Bibi",
+      cidade: "São Paulo",
+      estado: "SP",
+      status: "ativo",
+      busNumber: "-",
+      pickupTime: "07:45",
+      dropoffTime: "18:00",
+    },
+    {
+      id: 12,
+      name: "Sophia Ribeiro",
+      grade: "8º Ano A",
+      periodo: "Integral",
+      sexo: "Feminino",
+      idade: 13,
+      cuidadosEspeciais: "Diabetes",
+      relationship: "Mãe",
+      route: "-",
+      parent: "Patricia Ribeiro",
+      phone: "(11) 98888-3333",
+      email: "patricia.ribeiro@email.com",
+      address: "Rua Mourato Coelho, 789 - Vila Madalena",
+      cep: "05417-012",
+      rua: "Rua Mourato Coelho",
+      numero: "789",
+      semNumero: false,
+      complemento: "",
+      bairro: "Vila Madalena",
+      cidade: "São Paulo",
+      estado: "SP",
+      status: "ativo",
+      busNumber: "-",
+      pickupTime: "08:00",
+      dropoffTime: "18:15",
+    },
+  ]);
 
   // Dados dos alunos
   const [students, setStudents] = useState([
@@ -194,6 +286,29 @@ export default function StudentsManagement() {
     );
   };
 
+  const handleAddStudent = (studentToAdd: any) => {
+    // Ativar animação de loading
+    setAddingStudentId(studentToAdd.id);
+
+    // Após 400ms, mostrar animação de sucesso
+    setTimeout(() => {
+      setAddingStudentId(null);
+      setCompletedStudentId(studentToAdd.id);
+
+      // Após 300ms, adicionar o aluno e fechar o modal
+      setTimeout(() => {
+        // Adicionar o aluno à lista de alunos da escola
+        setStudents((prevStudents) => [...prevStudents, studentToAdd]);
+        // Fechar o modal
+        setShowAddStudentModal(false);
+        // Limpar a busca
+        setModalSearchTerm("");
+        // Resetar a animação
+        setCompletedStudentId(null);
+      }, 300);
+    }, 400);
+  };
+
   // Funções auxiliares para formatação
   const formatCEP = (value: string) => {
     const numbers = value.replace(/\D/g, "");
@@ -261,6 +376,18 @@ export default function StudentsManagement() {
 
     return matchesSearch && matchesFilter;
   });
+
+  // Filtro para alunos no modal (apenas alunos disponíveis que ainda não foram adicionados)
+  const filteredModalStudents = availableStudents
+    .filter((student) => !students.some((s) => s.id === student.id))
+    .filter((student) => {
+      const matchesModalSearch =
+        student.name.toLowerCase().includes(modalSearchTerm.toLowerCase()) ||
+        student.email.toLowerCase().includes(modalSearchTerm.toLowerCase()) ||
+        student.phone.includes(modalSearchTerm);
+
+      return matchesModalSearch;
+    });
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: "#F8F8F5" }}>
@@ -378,7 +505,10 @@ export default function StudentsManagement() {
                   <option value="ativo">Apenas Ativos</option>
                   <option value="inativo">Apenas Inativos</option>
                 </select>
-                <Button className="bg-[#FFDD00] hover:bg-[#E6C700] text-black border-2 border-black cursor-pointer">
+                <Button
+                  className="bg-[#FFDD00] hover:bg-[#E6C700] text-black border-2 border-black cursor-pointer"
+                  onClick={() => setShowAddStudentModal(true)}
+                >
                   <Plus className="w-4 h-4 mr-2" />
                   Novo Aluno
                 </Button>
@@ -987,6 +1117,131 @@ export default function StudentsManagement() {
                 className="bg-[#FFDD00] hover:bg-[#E6C700] text-black font-semibold cursor-pointer"
               >
                 Fechar
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Lista de Alunos */}
+      {showAddStudentModal && (
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          onClick={() => setShowAddStudentModal(false)}
+        >
+          <div
+            className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header do Modal */}
+            <div className="bg-[#FFDD00] px-6 py-4 flex items-center justify-between">
+              <h3 className="text-lg font-bold text-black">Selecionar Aluno</h3>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowAddStudentModal(false)}
+                className="p-1 hover:bg-black/10 rounded-full cursor-pointer"
+              >
+                <X className="w-5 h-5 text-black" />
+              </Button>
+            </div>
+
+            {/* Barra de Busca */}
+            <div className="p-6 border-b border-gray-200">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <input
+                  type="text"
+                  placeholder="Buscar por nome, email ou telefone..."
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FFDD00] focus:border-transparent"
+                  value={modalSearchTerm}
+                  onChange={(e) => setModalSearchTerm(e.target.value)}
+                />
+              </div>
+            </div>
+
+            {/* Lista de Alunos */}
+            <div className="p-6 overflow-y-auto max-h-[60vh]">
+              {filteredModalStudents.length === 0 ? (
+                <div className="text-center py-12">
+                  <Users className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                  <p className="text-gray-600">Nenhum aluno encontrado</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {filteredModalStudents.map((student) => (
+                    <div
+                      key={student.id}
+                      className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors cursor-pointer"
+                    >
+                      <div className="flex items-start space-x-3">
+                        <div className="w-12 h-12 bg-[#FFDD00] rounded-full flex items-center justify-center flex-shrink-0">
+                          <Users className="w-6 h-6 text-black" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-semibold text-gray-900 mb-2">
+                            {student.name}
+                          </h4>
+                          <div className="flex flex-col gap-1">
+                            <div className="flex items-center space-x-2 text-sm text-gray-600">
+                              <Mail className="w-4 h-4 flex-shrink-0" />
+                              <span className="truncate">{student.email}</span>
+                            </div>
+                            <div className="flex items-center space-x-2 text-sm text-gray-600">
+                              <Phone className="w-4 h-4 flex-shrink-0" />
+                              <span>{student.phone}</span>
+                            </div>
+                          </div>
+                        </div>
+                        <Button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleAddStudent(student);
+                          }}
+                          disabled={
+                            addingStudentId === student.id ||
+                            completedStudentId === student.id
+                          }
+                          className={`${
+                            completedStudentId === student.id
+                              ? "bg-green-500 hover:bg-green-500"
+                              : "bg-[#FFDD00] hover:bg-[#E6C700]"
+                          } text-black border-2 border-black cursor-pointer whitespace-nowrap flex-shrink-0 transition-all duration-300 transform ${
+                            completedStudentId === student.id ? "scale-105" : ""
+                          }`}
+                        >
+                          {addingStudentId === student.id ? (
+                            <>
+                              <div className="w-4 h-4 mr-2 border-2 border-black border-t-transparent rounded-full animate-spin" />
+                              Adicionando...
+                            </>
+                          ) : completedStudentId === student.id ? (
+                            <>
+                              <Check className="w-4 h-4 mr-2" />
+                              Adicionado!
+                            </>
+                          ) : (
+                            <>
+                              <Plus className="w-4 h-4 mr-2" />
+                              Adicionar
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Footer do Modal */}
+            <div className="bg-gray-50 px-6 py-4 border-t border-gray-200 flex justify-end">
+              <Button
+                onClick={() => setShowAddStudentModal(false)}
+                className="bg-[#FFDD00] hover:bg-[#E6C700] text-black font-semibold cursor-pointer"
+              >
+                Cancelar
               </Button>
             </div>
           </div>
